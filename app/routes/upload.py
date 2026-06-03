@@ -1,5 +1,5 @@
 import os
-import uuid
+import tempfile
 import aiofiles
 from fastapi import APIRouter, Request, UploadFile, File
 from fastapi.responses import RedirectResponse, JSONResponse
@@ -7,12 +7,12 @@ from fastapi.templating import Jinja2Templates
 from app.auth import check_login
 from app.transcribe import transcribe, ALLOWED_EXTENSIONS
 
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 router = APIRouter()
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=os.path.join(_ROOT, "templates"))
 
 MAX_UPLOAD_BYTES = 100 * 1024 * 1024  # 100 MB
-
-UPLOAD_DIR = "uploads"
 
 
 def allowed_file(filename: str) -> bool:
@@ -39,8 +39,9 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
         )
 
     ext = os.path.splitext(file.filename)[1].lower()
-    unique_name = f"{uuid.uuid4().hex}{ext}"
-    file_path = os.path.join(UPLOAD_DIR, unique_name)
+    tmp = tempfile.NamedTemporaryFile(suffix=ext, delete=False)
+    tmp.close()
+    file_path = tmp.name
 
     size = 0
     too_large = False
