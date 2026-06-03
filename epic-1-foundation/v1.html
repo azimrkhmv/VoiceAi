@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HEAD internal system — Foundation, client, lead · PRD</title>
+<style>
+  :root {
+    --ink: #0b1726;
+    --ink-soft: #334155;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --bg: #ffffff;
+    --bg-soft: #f8fafc;
+    --bg-callout: #eef4ff;
+    --accent: #1e3a8a;
+    --accent-soft: #dbeafe;
+    --green: #16a34a;
+    --green-soft: #dcfce7;
+    --orange: #ea580c;
+    --orange-soft: #ffedd5;
+    --red: #dc2626;
+    --red-soft: #fee2e2;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 980px; margin: 0 auto; padding: 64px 48px 96px; }
+  header.cover { border-bottom: 1px solid var(--line); padding-bottom: 32px; margin-bottom: 48px; }
+  .brand { font-weight: 700; letter-spacing: 0.04em; font-size: 14px; color: var(--ink); }
+  .brand .slash { color: var(--accent); }
+  .eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 28px; }
+  h1 { font-size: 36px; line-height: 1.15; margin: 8px 0 16px; letter-spacing: -0.01em; }
+  h2 { font-size: 22px; margin: 56px 0 12px; letter-spacing: -0.005em; }
+  h2 .num { color: var(--accent); font-weight: 600; margin-right: 12px; }
+  h3 { font-size: 16px; margin: 28px 0 8px; }
+  p { margin: 0 0 14px; color: var(--ink-soft); }
+  .lede { font-size: 17px; color: var(--ink-soft); max-width: 70ch; }
+  .meta { display: grid; grid-template-columns: 140px 1fr; gap: 4px 24px; margin-top: 24px; font-size: 14px; }
+  .meta dt { color: var(--muted); }
+  .meta dd { margin: 0; color: var(--ink); }
+  .toc { background: var(--bg-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 24px; margin: 24px 0; }
+  .toc h4 { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .toc ol { margin: 0; padding-left: 22px; columns: 2; column-gap: 32px; font-size: 14px; }
+  .toc li { padding: 2px 0; color: var(--ink-soft); }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+
+  .twolists { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 16px 0; }
+  .listblock { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 22px; background: var(--bg-soft); }
+  .listblock.in { border-color: #bbf7d0; background: #f0fdf4; }
+  .listblock.out { border-color: #fecaca; background: #fef2f2; }
+  .listblock h4 { margin: 0 0 8px; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .listblock.in h4 { color: var(--green); }
+  .listblock.out h4 { color: var(--red); }
+  .listblock ul { margin: 0; padding-left: 20px; font-size: 14px; color: var(--ink-soft); }
+  .listblock li { padding: 3px 0; }
+
+  table.metrics { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; }
+  table.metrics th { text-align: left; font-weight: 600; padding: 10px 14px; background: #f1f5f9; color: var(--ink); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 1px solid var(--line); }
+  table.metrics td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-soft); }
+  table.metrics tr:last-child td { border-bottom: none; }
+  table.metrics td.metric { color: var(--ink); font-weight: 500; }
+  table.metrics td.target { color: var(--accent); font-weight: 600; }
+
+  .personas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .persona { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; background: var(--bg); }
+  .persona .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 8px; }
+  .persona h4 { margin: 0 0 6px; font-size: 15px; }
+  .persona p { margin: 0; font-size: 13px; color: var(--ink-soft); }
+
+  .story { border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 26px; margin: 16px 0; background: var(--bg); }
+  .story .head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px dashed var(--line); }
+  .story .id { font-size: 12px; letter-spacing: 0.06em; color: var(--accent); font-weight: 700; }
+  .story .title { font-size: 17px; font-weight: 600; color: var(--ink); }
+  .story .role { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #f1f5f9; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-left: auto; }
+  .story .narrative { font-size: 15px; color: var(--ink); margin: 0 0 14px; line-height: 1.55; }
+  .story .narrative em { font-style: normal; color: var(--accent); font-weight: 600; }
+  .story .ac-label { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+  .story ul.ac { margin: 0; padding-left: 22px; font-size: 14px; color: var(--ink-soft); }
+  .story ul.ac li { padding: 4px 0; line-height: 1.5; }
+  .story ul.ac li strong { color: var(--ink); font-weight: 600; }
+
+  .persona-group { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 48px 0 8px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font-weight: 600; }
+
+  .dod { background: var(--bg-callout); border-left: 3px solid var(--accent); padding: 18px 24px; border-radius: 0 var(--radius) var(--radius) 0; margin: 20px 0; }
+  .dod ul { margin: 8px 0 0; padding-left: 22px; font-size: 14px; color: var(--ink-soft); }
+  .dod li { padding: 3px 0; }
+
+  table.risks { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; }
+  table.risks th { text-align: left; font-weight: 600; padding: 10px 14px; background: #f1f5f9; color: var(--ink); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 1px solid var(--line); }
+  table.risks td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-soft); }
+  table.risks tr:last-child td { border-bottom: none; }
+  table.risks td.q { color: var(--ink); font-weight: 500; width: 60%; }
+
+  dl.glossary { margin: 16px 0; }
+  dl.glossary dt { font-weight: 600; color: var(--ink); margin-top: 12px; font-size: 14px; }
+  dl.glossary dd { margin: 2px 0 0 0; color: var(--ink-soft); font-size: 14px; }
+
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
+  @media (max-width: 720px) {
+    .page { padding: 32px 20px 64px; }
+    h1 { font-size: 26px; }
+    .twolists, .personas { grid-template-columns: 1fr; }
+    .toc ol { columns: 1; }
+    .meta { grid-template-columns: 110px 1fr; }
+    .story .head { flex-wrap: wrap; }
+    .story .role { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="cover">
+    <div class="brand">HE<span class="slash">/</span>AD</div>
+    <div class="eyebrow">Product Requirements Document · Epic 1 of 4</div>
+    <h1>Internal system — Foundation, client, lead</h1>
+    <p class="lede">The platform foundation that everything else stands on. Email + password authentication. A hard-coded system admin that ships with the install. A fully dynamic role and permission system where admins create roles and assign permissions themselves. A metadata-driven custom-fields engine for client and lead records, where admins define their own fields and decide where each field appears. A single shared workspace with a client list, a search, a client detail page shell, a settings area, and a complete audit log of every change.</p>
+    <dl class="meta">
+      <dt>Product</dt><dd>HEAD internal system</dd>
+      <dt>Document</dt><dd>EPIC-1 · Foundation, client, lead · v1</dd>
+      <dt>Audience</dt><dd>HEAD internal team</dd>
+      <dt>Status</dt><dd>Draft for review</dd>
+      <dt>Depends on</dt><dd>Nothing — this is the foundation</dd>
+      <dt>Blocks</dt><dd>EPIC-2 (Sales pipeline), EPIC-3 (Consulting), EPIC-4 (Artifacts)</dd>
+      <dt>Build order</dt><dd>EPIC-1 first → then EPIC-2 and EPIC-4 in parallel → then EPIC-3 last</dd>
+    </dl>
+
+    <div class="toc">
+      <h4>Contents</h4>
+      <ol>
+        <li><a href="#sum">Summary</a></li>
+        <li><a href="#problem">Problem</a></li>
+        <li><a href="#goals">Goals &amp; success metrics</a></li>
+        <li><a href="#personas">Personas</a></li>
+        <li><a href="#scope">In scope / Out of scope</a></li>
+        <li><a href="#stories">User stories</a></li>
+        <li><a href="#dod">Definition of Done</a></li>
+        <li><a href="#security">Security &amp; data protection</a></li>
+        <li><a href="#glossary">Glossary</a></li>
+      </ol>
+    </div>
+  </header>
+
+  <h2 id="sum"><span class="num">01</span>Summary</h2>
+  <p>HEAD operates as a small AI consulting firm. Today there is no shared system. Client information lives in Telegram chats, voice notes, scattered docs, and people's heads. A returning company sometimes has to re-explain their story because no one remembers the last conversation. The first thing the internal system needs is a place to put a client — a single shared record, accessible to the team, with the fields HEAD actually wants to capture, owned by a specific person, governed by a permission system the founders control.</p>
+  <p>This epic delivers that foundation. Anyone on the team can log in with email and password — no SSO, no 2FA, no email verification, nothing fancy. A hard-coded system admin account exists from day one so the founders never lock themselves out. Inside the app there is a sidebar, a search, a "+ New lead" button in the top bar, a Clients list, a Client detail page, and a Settings area. The data model treats lead and client as the <em>same record</em> with a status flag — a lead is just a client at an early status.</p>
+  <p>What makes this epic non-trivial is that <em>everything is dynamic</em>. Roles are not hard-coded — admins create roles and assign permissions to them. Fields on a client/lead are not hard-coded either — admins create the fields they want and decide for each field whether it appears on the new-lead form, on the client detail page, on both, or on neither. The only fields the system itself owns are the three it cannot function without: company name, owner, and status. The system seeds a default Admin role (everything) and a default Member role (basic read/create) so day one isn't a blank canvas, but both are editable. <strong>The status list ships blank</strong> — no seeded values. Admins define the team's vocabulary themselves before anyone can create a lead. Every change to clients, users, roles, permissions, fields, and workspace settings is recorded in an admin-visible audit log.</p>
+  <p>This epic deliberately ships the <em>shell</em> of the client detail page, not the engagement workspace or the artifacts feed. Those sit in EPIC-3 and EPIC-4. The page renders an empty engagements list and an empty artifacts feed in MVP — placeholders waiting for those epics to populate them.</p>
+
+  <h2 id="problem"><span class="num">02</span>Problem</h2>
+  <p>HEAD has roughly eight people across founders, engineers, sales, support, and contractors. The team coordinates client work through Telegram messages, voice memos, and ad-hoc documents. When a lead arrives, it lives in whichever conversation thread it appeared in. There is no shared list anyone can scan. There is no agreed structure for what to capture about a new lead, so what gets written down varies by who took the call. When a previously-engaged client returns six months later, whoever picks up the phone has to rely on personal memory or hunt through chat history to figure out what was done last time. There is no system of record.</p>
+  <p>Building a workflow tool on top of nothing would mean baking decisions HEAD has not yet made into code — what counts as a lead, what fields matter, who can do what. The founders have explicitly asked for a flexible foundation: dynamic fields, dynamic roles, dynamic permissions. The cost of guessing wrong is rework; the cost of being flexible from the start is one well-designed framework. This epic is the framework — the place where every other module plugs in its data and its rules.</p>
+
+  <h2 id="goals"><span class="num">03</span>Goals &amp; success metrics</h2>
+  <p>The epic is successful when the team can log in, find any client by name in under a second, create a new lead in under a minute, and configure the system's fields and roles without engineering involvement — while every change is recorded and recoverable through the audit log. Success is measured both by raw performance numbers and by whether the system can adapt to a new field, role, or permission requirement entirely from settings.</p>
+
+  <table class="metrics">
+    <thead><tr><th>Metric</th><th>Current</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td class="metric">Login response time (server)</td><td>n/a</td><td class="target">&lt; 500 ms</td></tr>
+      <tr><td class="metric">Time to create a new lead end-to-end</td><td>scattered across Telegram</td><td class="target">&lt; 60 seconds</td></tr>
+      <tr><td class="metric">Client list first-paint (up to 100 clients)</td><td>n/a</td><td class="target">&lt; 1 second</td></tr>
+      <tr><td class="metric">Search-to-first-result latency</td><td>n/a</td><td class="target">&lt; 500 ms</td></tr>
+      <tr><td class="metric">Time to add a new custom field from settings</td><td>requires code change</td><td class="target">&lt; 30 seconds, no engineering</td></tr>
+      <tr><td class="metric">Time to create a new role &amp; assign permissions</td><td>n/a</td><td class="target">&lt; 60 seconds, no engineering</td></tr>
+      <tr><td class="metric">Permission check overhead per request</td><td>n/a</td><td class="target">&lt; 50 ms</td></tr>
+      <tr><td class="metric">Concurrent users supported</td><td>n/a</td><td class="target">≥ 20 without degradation</td></tr>
+      <tr><td class="metric">Audit log coverage of mutating actions</td><td>0%</td><td class="target">100%</td></tr>
+      <tr><td class="metric">Audit log retention</td><td>n/a</td><td class="target">≥ 12 months</td></tr>
+      <tr><td class="metric">Records lost due to permission misconfiguration</td><td>n/a</td><td class="target">0 (hard target)</td></tr>
+      <tr><td class="metric">Hard-coded admin lockout incidents</td><td>n/a</td><td class="target">0 (hard target)</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="personas"><span class="num">04</span>Personas</h2>
+  <div class="personas">
+    <div class="persona">
+      <div class="tag">Team member</div>
+      <h4>Anyone with an account</h4>
+      <p>Founder, engineer, sales person, support person, or contractor with a HEAD account. Logs in to find clients, create leads, see who owns what. Permissions are governed by their role. May or may not be able to delete or manage settings — depends on the role assigned to them.</p>
+    </div>
+    <div class="persona">
+      <div class="tag">Admin</div>
+      <h4>A team member with admin permissions</h4>
+      <p>Typically a founder. Manages users, defines roles, decides which permission each role gets, defines the fields on a client/lead, decides where each field appears, defines the list of statuses, and reviews the audit log. An admin is created by being assigned the seeded Admin role (or any custom role that includes the manage_* permissions).</p>
+    </div>
+    <div class="persona">
+      <div class="tag">System admin</div>
+      <h4>Hard-coded superuser</h4>
+      <p>A built-in account, seeded at installation with credentials configured outside the database. Always has every permission, including ones not yet defined. Cannot be deleted, cannot be deactivated from the UI, cannot have its permissions reduced. Exists so the founders never get locked out of their own system if a custom role configuration goes wrong.</p>
+    </div>
+  </div>
+
+  <h2 id="scope"><span class="num">05</span>In scope / Out of scope</h2>
+  <div class="twolists">
+    <div class="listblock in">
+      <h4>In scope</h4>
+      <ul>
+        <li>Email + password authentication, no verification step, no 2FA, no OAuth, no magic links</li>
+        <li>Hard-coded system admin account seeded at installation</li>
+        <li>App shell: sidebar nav (Pipeline, Clients, Settings), top bar (search, "+ New lead", user menu)</li>
+        <li>Single shared workspace — one HEAD installation, one workspace inside it</li>
+        <li>Client / lead data model: same record, distinguished by a status field</li>
+        <li>Three system fields that cannot be deleted: <strong>company name</strong>, <strong>owner</strong>, <strong>status</strong></li>
+        <li>Dynamic custom field engine — admin-defined fields of types: single-line text, long text, number, date, single-select, multi-select, checkbox, file upload</li>
+        <li>Per-field placement — admin chooses for each field whether it appears on the new-lead form, the client detail page, both, or neither</li>
+        <li>Dynamic role system — admins create roles, name them, and assign discrete permissions to them</li>
+        <li>Dynamic permission catalog — every mutating action in EPIC-1 is governed by a discrete permission</li>
+        <li>Permission scoping is <strong>global per role</strong> (no ownership-based access in MVP)</li>
+        <li>Seeded defaults: an Admin role (all permissions) and a Member role (basic read + create_lead), both editable</li>
+        <li>Status list ships <strong>empty</strong> — no seeded values. Admin must define at least one status before a lead can be created</li>
+        <li>New lead form rendered dynamically from current field definitions</li>
+        <li>Client list view with search by company name</li>
+        <li>Client detail page <strong>shell</strong>: header with system + custom fields, left rail with empty placeholders for engagements and recent artifacts</li>
+        <li>Edit client (in-place), delete client</li>
+        <li>Settings area with tabs: Profile, Team &amp; roles, Fields, Workspace</li>
+        <li>Audit log: every create / edit / delete on clients, leads, users, roles, permissions, fields, statuses, and workspace settings is recorded with actor, action, target, before/after, and timestamp</li>
+        <li>Audit log viewer for users with the <code>view_audit_log</code> permission</li>
+        <li>Self-service profile updates (display name, password)</li>
+        <li>Admin-initiated password reset for forgotten passwords</li>
+        <li>Basic responsive layout — usable on tablet and mobile, optimised for desktop</li>
+        <li>UI in English only</li>
+      </ul>
+    </div>
+    <div class="listblock out">
+      <h4>Out of scope</h4>
+      <ul>
+        <li>Self-service password reset (forgot-password email flow)</li>
+        <li>Email verification on account creation</li>
+        <li>Two-factor authentication, OAuth, SSO, magic links</li>
+        <li>Multiple workspaces / multi-tenancy</li>
+        <li>Ownership-based permissions (e.g. "edit own clients only")</li>
+        <li>Custom fields on engagements, opportunities, or any other entity — only client/lead in this epic</li>
+        <li>Configurable kanban stages — those ship with the boards they belong to in EPIC-2 and EPIC-3</li>
+        <li>The Sales board itself (EPIC-2)</li>
+        <li>The Consulting board, engagement workspace, business flow, opportunities, report (EPIC-3)</li>
+        <li>Artifact upload, storage, list (EPIC-4)</li>
+        <li>Sales pipeline metrics, dashboards, reports</li>
+        <li>Bulk import / export of clients</li>
+        <li>Native mobile apps</li>
+        <li>UI translation into Uzbek / Russian / Cyrillic — those languages apply to client-facing reports only (EPIC-3)</li>
+        <li>Notifications (email, in-app, push)</li>
+        <li>Integrations with Telegram, email, or any external system</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 id="stories"><span class="num">06</span>User stories</h2>
+  <p>Each story has acceptance criteria in Given / When / Then form. Every story must additionally satisfy the universal <a href="#dod">Definition of Done</a>. Stories grouped by persona.</p>
+
+  <div class="persona-group">Team member</div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-01</span><span class="title">Log in with email and password</span><span class="role">Team member</span></div>
+    <p class="narrative"><em>As a</em> team member with an account, <em>I want</em> to log in by entering my email and password, <em>so that</em> I can access HEAD's internal system.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> a valid email and password, <strong>when</strong> the user submits the login form, <strong>then</strong> they are authenticated and routed to the Clients page within 500 ms server-side.</li>
+      <li><strong>Given</strong> an invalid email or password, <strong>then</strong> the user sees a generic error ("incorrect email or password") without revealing which of the two was wrong.</li>
+      <li><strong>Given</strong> a deactivated account, <strong>then</strong> login fails with a generic error; the system does not disclose deactivated status.</li>
+      <li><strong>Given</strong> successful login, <strong>then</strong> a session is created and persists for 30 days unless the user logs out explicitly.</li>
+      <li>No email verification step exists. No 2FA challenge exists. No "remember me" toggle exists — sessions are persistent by default.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-02</span><span class="title">Log out</span><span class="role">Team member</span></div>
+    <p class="narrative"><em>As a</em> logged-in team member, <em>I want</em> to log out, <em>so that</em> my session ends and the next person on this device cannot use my account.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> a logged-in user, <strong>when</strong> they click Log out from the user menu, <strong>then</strong> the session is destroyed server-side and the browser is redirected to the login page.</li>
+      <li><strong>Given</strong> a destroyed session, <strong>when</strong> the user presses Back or uses a stale URL, <strong>then</strong> they are redirected to login — the previous session cannot be resumed.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-03</span><span class="title">See the app shell and navigate</span><span class="role">Team member</span></div>
+    <p class="narrative"><em>As a</em> logged-in team member, <em>I want</em> a consistent navigation shell on every page, <em>so that</em> I can find the Pipeline, the Clients list, Settings, and search without learning each page individually.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> a logged-in user, <strong>when</strong> any internal page is rendered, <strong>then</strong> a left sidebar shows <strong>Pipeline</strong>, <strong>Clients</strong>, and <strong>Settings</strong> in that order, with the current section highlighted.</li>
+      <li><strong>Given</strong> the same shell, <strong>then</strong> a top bar shows a global search field, a "+ New lead" button, and a user menu (current user's name, Profile shortcut, Log out).</li>
+      <li><strong>Given</strong> the current user lacks the <code>create_lead</code> permission, <strong>then</strong> the "+ New lead" button is hidden.</li>
+      <li><strong>Given</strong> the current user lacks any settings-management permission, <strong>then</strong> the Settings sidebar item is still visible but only shows tabs they have access to (at minimum, their own Profile).</li>
+      <li>The Pipeline sidebar item lands the user on EPIC-2's Sales board once it ships; in EPIC-1, the Pipeline page renders an empty state explaining that boards are coming.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-04</span><span class="title">View the list of all clients</span><span class="role">Team member</span></div>
+    <p class="narrative"><em>As a</em> team member with the <code>view_clients</code> permission, <em>I want</em> to see a list of every client in the workspace, <em>so that</em> I can scan, sort, and filter the full book of business.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the user has <code>view_clients</code>, <strong>when</strong> they open the Clients page, <strong>then</strong> a paginated table renders within 1 second for the first 100 clients.</li>
+      <li>Columns include the three system fields (company name, owner, status) plus any custom field marked as "show in list view" in Settings.</li>
+      <li>Each row links to the client detail page.</li>
+      <li>The list is sortable by any visible column (ascending / descending).</li>
+      <li>Filtering by status is available as a toolbar control above the table.</li>
+      <li><strong>Given</strong> the user lacks <code>view_clients</code>, <strong>then</strong> the Clients sidebar item is hidden and direct URL access returns a permission-denied page.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-05</span><span class="title">Search for a client by name</span><span class="role">Team member</span></div>
+    <p class="narrative"><em>As a</em> team member, <em>I want</em> to type a company name into the global search and jump to that client, <em>so that</em> I don't have to scroll the Clients list every time.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the user types at least 2 characters into global search, <strong>when</strong> they pause typing, <strong>then</strong> matching clients appear in a dropdown within 500 ms.</li>
+      <li>Search matches against the company name field with case-insensitive substring matching.</li>
+      <li>Each search result shows: company name, current status, owner.</li>
+      <li><strong>Given</strong> the user selects a result, <strong>then</strong> they are navigated to that client's detail page.</li>
+      <li><strong>Given</strong> the user lacks <code>view_clients</code>, <strong>then</strong> the search field is hidden.</li>
+      <li>Search results are scoped to clients the user is permitted to view (global permission in MVP — anyone with view_clients sees all).</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-06</span><span class="title">Create a new lead</span><span class="role">Team member</span></div>
+    <p class="narrative"><em>As a</em> team member with the <code>create_lead</code> permission, <em>I want</em> to capture a new lead in a single short form, <em>so that</em> the information lands in the system the moment a conversation happens instead of being lost in Telegram.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the user clicks "+ New lead" in the top bar, <strong>when</strong> the form opens, <strong>then</strong> it renders the system fields (company name, owner, status) plus every custom field whose placement includes "new-lead form".</li>
+      <li>Company name is always required. Owner defaults to the current user and is editable. Status defaults to the first <em>lead-eligible</em> status (see definition below) and is editable. If no lead-eligible status exists, lead creation is blocked entirely with a banner directing admins to Settings → Workspace → Statuses.</li>
+      <li><strong>Lead-eligible status</strong> — in EPIC-1's standalone phase (before EPIC-2 ships), this is any defined status. After EPIC-2 ships and introduces the <code>board</code> property, this narrows to "any status whose board property includes Sales." This is the canonical rule shared with EPIC-2 US-14; both stories reference the same gate.</li>
+      <li>Each custom field renders according to its type (text, dropdown, date, file, etc.) and respects its required/optional flag.</li>
+      <li><strong>Given</strong> all required fields are filled, <strong>when</strong> the user submits, <strong>then</strong> the client record is created, the user lands on the new client's detail page, and an entry is written to the audit log.</li>
+      <li><strong>Given</strong> a required field is empty, <strong>then</strong> submit is blocked with inline error messages and the form is not submitted.</li>
+      <li><strong>Given</strong> the user lacks <code>create_lead</code>, <strong>then</strong> the "+ New lead" button is hidden and direct API calls return permission-denied.</li>
+      <li>The form does not require connecting the lead to an engagement at creation — engagements are added later (EPIC-3) or via the Sales board's Won transition (EPIC-2).</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-07</span><span class="title">Open and read a client detail page</span><span class="role">Team member</span></div>
+    <p class="narrative"><em>As a</em> team member with <code>view_clients</code>, <em>I want</em> to open any client and see every captured field plus the placeholders for their engagements and artifacts, <em>so that</em> I have one place to read about that company.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the user navigates to a client detail page, <strong>when</strong> it loads, <strong>then</strong> the header shows: company name, current status badge, owner, created date, and every custom field whose placement includes "detail page".</li>
+      <li>The left rail shows two sections: <strong>Engagements</strong> and <strong>Recent artifacts</strong>. In EPIC-1, both sections render empty-state placeholders with copy explaining that EPIC-3 and EPIC-4 populate them.</li>
+      <li>The right pane in EPIC-1 shows an empty-state explaining that engagement workspaces (consulting, implementation, training) will appear here once those modules ship.</li>
+      <li>System fields are visually distinct from custom fields in the header (different label style or section grouping).</li>
+      <li>The page never crashes if a field that was previously captured has since been deleted from the field definitions — old values are shown as read-only in a "Removed fields" section, retained for the audit trail.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-08</span><span class="title">Edit a client</span><span class="role">Team member</span></div>
+    <p class="narrative"><em>As a</em> team member with <code>edit_client</code>, <em>I want</em> to update any client's fields in-place, <em>so that</em> I keep the record accurate as I learn more.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the user has <code>edit_client</code>, <strong>when</strong> they click a field on the detail page, <strong>then</strong> the field becomes editable with the appropriate input control for its type.</li>
+      <li><strong>Given</strong> the user changes a value and confirms, <strong>then</strong> the new value is saved, the page reflects it immediately, and an audit log entry is written with before/after values.</li>
+      <li>Company name can be edited but never blanked.</li>
+      <li>Status can be changed to any status defined in the workspace.</li>
+      <li>Owner can be reassigned to any active team member.</li>
+      <li><strong>Given</strong> the user lacks <code>edit_client</code>, <strong>then</strong> fields are read-only and edit affordances are hidden.</li>
+      <li>Edits respect each field's required/optional flag — a required field cannot be cleared.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-09</span><span class="title">Delete a client</span><span class="role">Team member</span></div>
+    <p class="narrative"><em>As a</em> team member with <code>delete_client</code>, <em>I want</em> to remove a client record that was created in error or no longer matters, <em>so that</em> the list stays meaningful.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the user has <code>delete_client</code>, <strong>when</strong> they choose Delete from the client detail page, <strong>then</strong> a confirmation dialog appears requiring the user to type the company name to confirm.</li>
+      <li><strong>Given</strong> confirmation is given, <strong>then</strong> the client is soft-deleted — removed from list and search results but preserved in the database, with a deletion record in the audit log including actor, target, timestamp, and a snapshot of the record at the moment of deletion.</li>
+      <li>Soft-deleted clients can be restored by anyone with <code>manage_workspace</code> via an admin tool (out of scope for this epic UI, but the data is recoverable).</li>
+      <li><strong>Given</strong> the user lacks <code>delete_client</code>, <strong>then</strong> the Delete action is hidden and direct API calls return permission-denied.</li>
+      <li>Deleting a client does not delete any related engagement or artifact records (these will live in EPIC-3 and EPIC-4). The related records remain in the database in an "orphaned" state — preserved with the original foreign key intact but hidden from every UI surface that lists by active client. A dedicated admin UI to review or recover orphaned records is <strong>out of scope for MVP</strong> across EPIC-3 and EPIC-4; recovery, if needed, is a manual admin operation out of band.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-10</span><span class="title">Update my own profile</span><span class="role">Team member</span></div>
+    <p class="narrative"><em>As a</em> team member, <em>I want</em> to update my display name and change my password from the Profile tab, <em>so that</em> my account reflects me and I can rotate my password without bothering an admin.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the user opens Settings → Profile, <strong>then</strong> they see their display name (editable), their email (read-only), and a "Change password" affordance.</li>
+      <li><strong>Given</strong> the user changes their display name and saves, <strong>then</strong> the change is persisted, reflected across the app, and audit-logged.</li>
+      <li><strong>Given</strong> the user changes their password, <strong>when</strong> they submit the new password (entered twice), <strong>then</strong> it is saved as a hash, all other active sessions for this account are invalidated, and an audit log entry is written.</li>
+      <li>Email cannot be self-changed in MVP — admin-only.</li>
+      <li>Passwords must be at least 8 characters. No other complexity rules.</li>
+    </ul>
+  </div>
+
+  <div class="persona-group">Admin</div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-11</span><span class="title">Invite a new team member</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>manage_users</code>, <em>I want</em> to create a new team account from Settings, <em>so that</em> a new hire or contractor can log in without going through engineering.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin opens Settings → Team &amp; roles → New user, <strong>then</strong> they see a form requiring email, display name, an initial password, and a role assignment.</li>
+      <li><strong>Given</strong> the admin submits the form, <strong>then</strong> the account is created, the user can log in immediately with the provided credentials, and an audit log entry is written.</li>
+      <li>The initial password must be communicated to the new user out of band (e.g. Telegram, email outside the system) — the system itself does not send invitation emails in MVP.</li>
+      <li>The role assignment is required. The admin can pick any existing role (seeded or custom).</li>
+      <li>Email addresses must be unique across the workspace; duplicates are rejected at submit.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-12</span><span class="title">Deactivate, reactivate, or delete a team member</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>manage_users</code>, <em>I want</em> to stop a team member from logging in without erasing their history, <em>so that</em> records created by them remain intact while the account itself is suspended.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin opens a team member's row in Settings → Team &amp; roles, <strong>when</strong> they choose Deactivate, <strong>then</strong> the user's sessions are killed and future logins fail with the generic error message.</li>
+      <li>Deactivated users continue to appear as the "owner" on clients they previously owned. Their display name appears in italics or with a "deactivated" badge in lists.</li>
+      <li><strong>Given</strong> a deactivated user is reactivated by the admin, <strong>then</strong> the user can log in again from the next attempt onward.</li>
+      <li>Hard deletion is intentionally not exposed in the UI in MVP — accounts are deactivated, not deleted, to preserve audit trail.</li>
+      <li>An admin cannot deactivate themselves. The system admin (hard-coded) cannot be deactivated by any admin.</li>
+      <li>Every deactivation, reactivation, and role change is audit-logged.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-13</span><span class="title">Reset another user's password</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>manage_users</code>, <em>I want</em> to set a new password for a team member who forgot theirs, <em>so that</em> they can log back in — since there is no self-service forgot-password flow in MVP.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin opens a team member's row, <strong>when</strong> they choose Reset password, <strong>then</strong> they enter a new password directly into a form.</li>
+      <li><strong>Given</strong> the new password is set, <strong>then</strong> all of that user's existing sessions are invalidated, the password hash is updated, and an audit log entry is written.</li>
+      <li>The admin must communicate the new password to the user out of band.</li>
+      <li>The system admin's password cannot be reset from the UI by anyone — it is configured outside the database (see SEC-06).</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-14</span><span class="title">Create a custom role</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>manage_roles</code>, <em>I want</em> to create a new role and pick which permissions it includes, <em>so that</em> I can model HEAD's team structure without engineering.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin opens Settings → Team &amp; roles → Roles → New role, <strong>then</strong> a form requests a role name and a multi-select of permissions from the full permission catalog.</li>
+      <li>Role names must be unique within the workspace.</li>
+      <li><strong>Given</strong> the admin submits, <strong>then</strong> the role is created and can be assigned to team members from the user form.</li>
+      <li>The permission catalog presented to the admin is the union of all permissions registered by every shipped epic — in EPIC-1, this is the set listed in the glossary.</li>
+      <li>Every role creation and edit is audit-logged with the full before/after permission set.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-15</span><span class="title">Edit, rename, or delete a role</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>manage_roles</code>, <em>I want</em> to change a role's name or its permissions later, and to remove roles no longer in use, <em>so that</em> the role catalogue evolves with the team.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin edits a role's name, <strong>then</strong> the change propagates to every team member assigned to that role immediately, no logout required.</li>
+      <li><strong>Given</strong> the admin adds or removes permissions on a role, <strong>then</strong> every team member with that role gains or loses access on their next request (no session-cached permissions).</li>
+      <li><strong>Given</strong> the admin attempts to delete a role currently assigned to one or more users, <strong>then</strong> the system blocks the deletion until those users are reassigned to a different role.</li>
+      <li>The seeded Admin role and Member role can be renamed and re-permissioned. The Admin role cannot be deleted (it is the seeded fallback for the workspace).</li>
+      <li>Every change is audit-logged.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-16</span><span class="title">Assign or change a team member's role</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>manage_users</code>, <em>I want</em> to change which role a team member holds, <em>so that</em> their permissions follow their actual responsibility.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin selects a role from the user's row, <strong>when</strong> they confirm the change, <strong>then</strong> the new role takes effect on the user's next request.</li>
+      <li>Each team member holds exactly one role at a time in MVP (no multi-role).</li>
+      <li>Removing the last admin user is allowed only because the hard-coded system admin always remains.</li>
+      <li>Every role assignment change is audit-logged.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-17</span><span class="title">Create a custom field on client / lead</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>manage_fields</code>, <em>I want</em> to add a new field to the client/lead record from Settings, <em>so that</em> HEAD captures exactly what HEAD wants — without engineering.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin opens Settings → Fields → New field, <strong>then</strong> a form requests: field name, field type, required/optional, default value (where applicable), help text, display order, dropdown options (where applicable), and placement.</li>
+      <li>Supported field types: <strong>single-line text, long text, number, date, single-select dropdown, multi-select dropdown, checkbox, file upload</strong>.</li>
+      <li>Placement is a multi-select with these options: <strong>show on new-lead form</strong>, <strong>show on client detail page</strong>, <strong>show in clients list view</strong>. A field can be in any combination of the three, or none of them (defined but not surfaced).</li>
+      <li>Field names must be unique across client/lead fields. Internal field identifiers are derived from the name and immutable once created.</li>
+      <li><strong>Given</strong> the admin submits a valid form, <strong>then</strong> the field is created and appears immediately in every place its placement specifies, with no deploy.</li>
+      <li>A field marked required cannot be required retroactively without admin acknowledgement that existing records with empty values will be flagged (not blocked).</li>
+      <li>Every field creation is audit-logged with the full configuration.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-18</span><span class="title">Edit, reorder, or delete a custom field</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>manage_fields</code>, <em>I want</em> to refine a field after creation, reorder fields in the form, and remove fields that don't matter anymore, <em>so that</em> the schema adapts as the team learns what to capture.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin edits a field's name, help text, default, options, placement, required flag, or display order, <strong>when</strong> they save, <strong>then</strong> the change is reflected everywhere the field appears within seconds. Existing data is preserved.</li>
+      <li>Field type cannot be changed after creation (type changes risk data loss). To change a type, the admin must delete and recreate.</li>
+      <li>Removing a dropdown option does not delete records that hold that value — those values are shown as read-only and flagged "removed option" in the UI.</li>
+      <li><strong>Given</strong> the admin deletes a field, <strong>when</strong> they confirm, <strong>then</strong> the field disappears from all forms and detail pages. Existing data is preserved in a "Removed fields" section on the affected records (visible only to users with view_clients) and retained in the audit log.</li>
+      <li>System fields (company name, owner, status) cannot be deleted, cannot have their type changed, and cannot be marked optional. They can be renamed for display.</li>
+      <li>Every field edit, reorder, and delete is audit-logged.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-19</span><span class="title">Configure the status list</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>manage_workspace</code>, <em>I want</em> to define the list of statuses a client/lead can hold, <em>so that</em> HEAD's vocabulary for "where is this account?" matches how the team actually talks.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin opens Settings → Workspace → Statuses on a fresh installation, <strong>then</strong> they see an <strong>empty list</strong> with a clear empty-state message: "Define your first status before the team can create leads."</li>
+      <li>The admin can add a status, rename a status, reorder statuses, and remove a status.</li>
+      <li>Each status carries: label (display string), display order. EPIC-2 will extend this entity with a "board" property and a "type" property; EPIC-1 just defines the bare status record.</li>
+      <li><strong>Given</strong> the admin removes a status currently held by one or more clients, <strong>then</strong> deletion is blocked with a list of affected clients; the admin must first reassign those clients to another status.</li>
+      <li>The first <em>lead-eligible</em> status in the ordered list is the default for new leads. If no lead-eligible status exists, the "+ New lead" button is disabled with a tooltip explaining the admin must configure statuses first. (See US-06 for the definition of lead-eligible — it evolves when EPIC-2 introduces the <code>board</code> property.)</li>
+      <li>Every change is audit-logged.</li>
+      <li>Status configuration applies workspace-wide, not per-engagement-type. (Engagement-level workflow states live with their respective boards in EPIC-2 and EPIC-3.)</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-20</span><span class="title">Review the audit log</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>view_audit_log</code>, <em>I want</em> to see a chronological log of every change made in the system, <em>so that</em> I can answer "who changed what, when?" without engineering.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin opens Settings → Workspace → Audit log, <strong>then</strong> they see a paginated, time-descending list of every mutating action.</li>
+      <li>Each entry records: timestamp, actor (user display name + email), action (create, edit, delete, login, logout, password change, role assignment, etc.), target entity (client, user, role, field, status, workspace setting), and a structured before / after payload where applicable.</li>
+      <li>The log is filterable by actor, target type, target id, and date range.</li>
+      <li>Audit log entries are immutable — there is no Edit and no Delete on entries from any UI or API.</li>
+      <li>Login and logout events are recorded.</li>
+      <li>Failed login attempts are recorded with the email tried (regardless of whether the account exists), the source IP if available, and the timestamp.</li>
+      <li>Audit log retention is at least 12 months.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-21</span><span class="title">Update workspace settings</span><span class="role">Admin</span></div>
+    <p class="narrative"><em>As an</em> admin with <code>manage_workspace</code>, <em>I want</em> to update the workspace's display name and basic preferences, <em>so that</em> the system reflects HEAD branding accurately.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the admin opens Settings → Workspace → General, <strong>then</strong> they can edit: workspace display name, default time zone, default currency.</li>
+      <li>The workspace name appears in the browser title and at the top of the sidebar.</li>
+      <li>Every change is audit-logged.</li>
+      <li>Workspace settings apply to the single workspace this installation hosts — multi-tenant is out of scope.</li>
+    </ul>
+  </div>
+
+  <div class="persona-group">System admin (hard-coded)</div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-22</span><span class="title">System admin is seeded on installation</span><span class="role">System admin</span></div>
+    <p class="narrative"><em>As the</em> founder running the installation, <em>I want</em> a hard-coded admin account that exists from the moment the system boots, <em>so that</em> I can never be locked out of my own system even if every other account is broken.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> a fresh installation, <strong>when</strong> the application starts, <strong>then</strong> at least one system admin account is present with credentials configured via environment variables (or equivalent secret-store), not stored in the application database alongside regular users.</li>
+      <li>The system admin can log in with email + password like any other user.</li>
+      <li>The system admin's UI experience is identical to a regular admin's, except where SEC-06 differs.</li>
+      <li>The system admin's existence and credential location is documented in the deployment runbook.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-23</span><span class="title">System admin has every permission implicitly</span><span class="role">System admin</span></div>
+    <p class="narrative"><em>As the</em> founder, <em>I want</em> the system admin to always have every permission — including permissions that haven't been defined yet — <em>so that</em> future epics never require a redeployment to grant access to the founder.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> the system admin requests any action, <strong>then</strong> the permission check returns true regardless of which permissions are registered.</li>
+      <li>The system admin's permissions are never persisted as a role-permission mapping in the database — they are evaluated at runtime as "is this user a system admin?"</li>
+      <li>The system admin appears in role lists as having an implicit "System admin" badge that cannot be removed.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">US-24</span><span class="title">System admin cannot be deleted, deactivated, or demoted from the UI</span><span class="role">System admin</span></div>
+    <p class="narrative"><em>As the</em> founder, <em>I want</em> the system admin account to be immune to any in-product action that could lock it out, <em>so that</em> a misconfiguration cannot remove the only path back into the system.</p>
+    <div class="ac-label">Acceptance criteria</div>
+    <ul class="ac">
+      <li><strong>Given</strong> any user attempts to deactivate, delete, or change the role of a system admin from the UI, <strong>then</strong> the action is blocked with an explicit error: "System admin account is protected."</li>
+      <li>The system admin's password can only be changed from outside the UI (deployment configuration), per SEC-06.</li>
+      <li>The system admin can change their own display name from Profile, but cannot delete their own account.</li>
+      <li>The system admin's email is configured in the deployment and surfaced as read-only in Profile.</li>
+    </ul>
+  </div>
+
+  <h2 id="dod"><span class="num">07</span>Definition of Done</h2>
+  <p>Applies to every user story. A story is not done until every item below is true.</p>
+  <div class="dod">
+    <ul>
+      <li>All acceptance criteria pass the automated test suite (unit + integration + end-to-end).</li>
+      <li>Every mutating path writes an audit log entry that survives a process restart and database backup.</li>
+      <li>Every permission-gated UI affordance is hidden when the user lacks the permission, and every permission-gated API endpoint returns permission-denied when the user lacks the permission. Both checks tested.</li>
+      <li>The page is usable on a 1280px desktop viewport without horizontal scroll, and degrades to a single-column readable layout on 375px mobile width.</li>
+      <li>The change is documented in the admin guide if it affects admin behaviour, and in the team-member guide if it affects regular-user behaviour.</li>
+      <li>Strings are English. No emoji, no AI-washing language (e.g. "fully autonomous", "magic"), no ALL CAPS, sentence case throughout.</li>
+      <li>HEAD product lead (Abdulbosit) has signed off.</li>
+    </ul>
+  </div>
+
+  <h2 id="security"><span class="num">08</span>Security &amp; data protection</h2>
+  <p>The foundation is the gate to every other module. A weakness here is a weakness everywhere. The rules below are non-negotiable and apply alongside every user story.</p>
+
+  <div class="story">
+    <div class="head"><span class="id">SEC-01</span><span class="title">Passwords stored as hashes only</span><span class="role">Security</span></div>
+    <div class="ac-label">Required behaviour</div>
+    <ul class="ac">
+      <li><strong>Given</strong> a user creates or changes a password, <strong>when</strong> the password is persisted, <strong>then</strong> only a salted, slow-hashed digest (Argon2id or bcrypt at a current-recommended work factor) is stored. The plaintext is never written to any database, log, or queue.</li>
+      <li><strong>Given</strong> the system admin's password is rotated, <strong>then</strong> it is rotated in the deployment configuration; the application reads it from the configured secret store, never from the user database.</li>
+      <li>Password hashes are never returned by any API.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">SEC-02</span><span class="title">Session integrity</span><span class="role">Security</span></div>
+    <div class="ac-label">Required behaviour</div>
+    <ul class="ac">
+      <li>Sessions use a cryptographically random, opaque token, stored server-side and identified by a cookie or token header. The cookie is set with <code>HttpOnly</code>, <code>Secure</code>, and <code>SameSite=Lax</code>.</li>
+      <li><strong>Given</strong> a user logs out, deactivates, changes their password, or has their password reset by an admin, <strong>then</strong> every existing session for that user is invalidated server-side within seconds.</li>
+      <li>Session lifetime is 30 days of inactivity (sliding) with a hard cap of 90 days regardless of activity.</li>
+      <li>The session token never contains permission information — permission is re-evaluated on every request against the current role and the current permission set.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">SEC-03</span><span class="title">Permission enforcement on every mutating action</span><span class="role">Security</span></div>
+    <div class="ac-label">Required behaviour</div>
+    <ul class="ac">
+      <li><strong>Given</strong> any API endpoint that creates, edits, or deletes data, <strong>when</strong> a request arrives, <strong>then</strong> the server checks the actor's current role and the permissions on that role <strong>before</strong> executing any database write.</li>
+      <li>Permission checks are <strong>server-side, never client-side</strong>. Client-side hiding of UI is a UX concern, not a security one — the server is the source of truth.</li>
+      <li>An endpoint that has not registered a permission requirement is denied by default (deny-by-default policy).</li>
+      <li>Permission registrations are part of code review and appear in the permission catalog visible to admins.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">SEC-04</span><span class="title">Failed login throttling</span><span class="role">Security</span></div>
+    <div class="ac-label">Required behaviour</div>
+    <ul class="ac">
+      <li><strong>Given</strong> five consecutive failed login attempts on a single email within 15 minutes, <strong>then</strong> further attempts on that email are throttled with exponential backoff for the next 15 minutes.</li>
+      <li><strong>Given</strong> twenty failed login attempts from a single IP within 5 minutes across any emails, <strong>then</strong> further attempts from that IP are throttled for 15 minutes.</li>
+      <li>Throttle messages do not reveal whether an email exists in the system.</li>
+      <li>Every failed login attempt is recorded in the audit log (US-20) with the email tried and the source IP if available.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">SEC-05</span><span class="title">Audit log integrity</span><span class="role">Security</span></div>
+    <div class="ac-label">Required behaviour</div>
+    <ul class="ac">
+      <li>Audit log entries are append-only. No application code path exists to update or delete an entry. Database-level constraints enforce this where possible.</li>
+      <li>Audit log entries cannot be edited by the system admin from the UI.</li>
+      <li>Audit log access requires the <code>view_audit_log</code> permission and is itself logged ("user X viewed the audit log").</li>
+      <li>Audit log backups are part of the standard database backup, retained for at least 12 months.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">SEC-06</span><span class="title">Hard-coded system admin protection</span><span class="role">Security</span></div>
+    <div class="ac-label">Required behaviour</div>
+    <ul class="ac">
+      <li>System admin credentials are stored in the deployment configuration (environment variable or secret manager), not in the user database. The application reads them at boot.</li>
+      <li>No UI flow can delete, deactivate, demote, or reset the password of a system admin account.</li>
+      <li>A system admin's role assignment in the database, if any, is ignored — the "system admin" status is determined by matching the configured email at request time.</li>
+      <li>The number of system admin accounts is configured externally and is typically 1 or 2 (the founders).</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">SEC-07</span><span class="title">Workspace isolation</span><span class="role">Security</span></div>
+    <div class="ac-label">Required behaviour</div>
+    <ul class="ac">
+      <li>Every database query for clients, leads, users, roles, fields, statuses, and audit log entries is scoped to the current workspace identifier.</li>
+      <li>Even though MVP ships a single workspace, the schema and query layer assume multi-tenancy from day one so future installations cannot be retrofitted into leaks.</li>
+      <li>No API endpoint accepts a workspace identifier from the client — it is always resolved from the authenticated session.</li>
+    </ul>
+  </div>
+
+  <div class="story">
+    <div class="head"><span class="id">SEC-08</span><span class="title">Input validation and output encoding</span><span class="role">Security</span></div>
+    <div class="ac-label">Required behaviour</div>
+    <ul class="ac">
+      <li>All user input is validated server-side against the declared field type before persistence. Type mismatches are rejected.</li>
+      <li>All user-provided text rendered in HTML is escaped to prevent cross-site scripting. Markdown is rendered through a hardened library with a strict allowlist.</li>
+      <li>File uploads accept only an admin-configured allowlist of MIME types and are stored outside the web root.</li>
+      <li>Database access uses parameterised queries exclusively — no string-concatenated SQL.</li>
+    </ul>
+  </div>
+
+  <h2 id="glossary"><span class="num">09</span>Glossary</h2>
+  <dl class="glossary">
+    <dt>Admin</dt><dd>A team member whose assigned role includes the management permissions (manage_users, manage_roles, manage_fields, manage_workspace, view_audit_log). The seeded "Admin" role has all of these.</dd>
+    <dt>Audit log</dt><dd>An append-only ledger of every mutating action in the system: who, what, when, before / after.</dd>
+    <dt>Client</dt><dd>A company HEAD does business with. The same record as a Lead — distinguished only by the status field.</dd>
+    <dt>Custom field</dt><dd>An admin-defined field on the client/lead record. Has a name, type, optional default, help text, required flag, display order, and placement.</dd>
+    <dt>Custom file field vs. artifact</dt><dd>A custom field of type "file upload" (this epic) is a <em>structured slot</em> on the client record — one specific file (e.g. a signed contract) tied to one named field, validated by the admin's field config. An artifact (EPIC-4) is an <em>unstructured upload</em> attached to a client (or engagement) with no field semantics — site visit photos, voice memos, chat exports, anything. When in doubt: if the file represents one of a known set ("contract," "NDA"), use a custom file field. If it's part of a growing pile of raw material, use an artifact.</dd>
+    <dt>Field placement</dt><dd>A multi-select on each custom field controlling whether the field appears on the new-lead form, on the client detail page, in the clients list view, or any combination — including none.</dd>
+    <dt>Hard-coded admin / System admin</dt><dd>An account seeded at installation from deployment configuration. Has implicit all-permissions, cannot be deleted, deactivated, demoted, or password-reset from the UI.</dd>
+    <dt>Lead</dt><dd>A client at an early status (typically the seeded "Lead" or "In communication" status). Same database record as a Client.</dd>
+    <dt>Member</dt><dd>The seeded default role, granted basic read and create-lead permissions. Fully editable by an admin.</dd>
+    <dt>Permission</dt><dd>A discrete, named capability — e.g. <code>create_lead</code>, <code>edit_client</code>, <code>delete_client</code>, <code>manage_users</code>, <code>manage_roles</code>, <code>manage_fields</code>, <code>manage_workspace</code>, <code>view_clients</code>, <code>view_audit_log</code>. Future epics register additional permissions; the catalog grows over time.</dd>
+    <dt>Permission catalog</dt><dd>The union of every permission registered by every shipped epic. Visible to admins in Settings → Team &amp; roles. Surfaces only registered permissions, not arbitrary strings.</dd>
+    <dt>Role</dt><dd>A named bundle of permissions. Created and managed by admins. Each team member holds exactly one role.</dd>
+    <dt>Session</dt><dd>A server-side authenticated context for one logged-in user. Identified by an opaque token. Invalidated on logout, password change, password reset by admin, or deactivation.</dd>
+    <dt>Status</dt><dd>The current lifecycle stage of a client/lead. Comes from an admin-defined ordered list. The list ships empty — admins define the team's vocabulary before any lead can be created. EPIC-2 extends the status entity with board and type properties.</dd>
+    <dt>System field</dt><dd>A field the system itself owns and the admin cannot delete: company name, owner, status.</dd>
+    <dt>Team member</dt><dd>Anyone with an account in the workspace. Permissions follow the assigned role.</dd>
+    <dt>Workspace</dt><dd>The container for everything in one installation. MVP ships a single workspace; the data model assumes multi-tenancy for future portability.</dd>
+  </dl>
+
+  <footer>
+    <div>HE/AD · PRD · EPIC-1 · v1</div>
+    <div>Foundation · client · lead</div>
+  </footer>
+</div>
+</body>
+</html>

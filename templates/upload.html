@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceAI — Transkripsiya</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid #1e1e1e;
+        }
+
+        header h1 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        header a {
+            font-size: 13px;
+            color: #666;
+            text-decoration: none;
+        }
+
+        header a:hover {
+            color: #aaa;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 24px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .drop-zone {
+            width: 100%;
+            border: 2px dashed #2a2a2a;
+            border-radius: 12px;
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            position: relative;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: #555;
+            background: #151515;
+        }
+
+        .drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .drop-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .drop-zone h2 {
+            font-size: 15px;
+            font-weight: 500;
+            color: #ccc;
+            margin-bottom: 6px;
+        }
+
+        .drop-zone p {
+            font-size: 12px;
+            color: #555;
+        }
+
+        .file-name {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #888;
+            min-height: 18px;
+        }
+
+        .btn {
+            margin-top: 20px;
+            width: 100%;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 13px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #e0e0e0;
+        }
+
+        .btn:disabled {
+            background: #2a2a2a;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        .progress {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .progress-bar-wrap {
+            background: #1e1e1e;
+            border-radius: 999px;
+            height: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #fff;
+            border-radius: 999px;
+            width: 0%;
+            transition: width 0.3s;
+            animation: indeterminate 1.4s infinite;
+        }
+
+        @keyframes indeterminate {
+            0%   { width: 0%; margin-left: 0%; }
+            50%  { width: 60%; margin-left: 20%; }
+            100% { width: 0%; margin-left: 100%; }
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        .error-box {
+            display: none;
+            margin-top: 20px;
+            background: #2a1515;
+            border: 1px solid #5a2020;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #f08080;
+            width: 100%;
+        }
+
+        .result-box {
+            display: none;
+            margin-top: 24px;
+            width: 100%;
+        }
+
+        .result-box h3 {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .transcript {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #e0e0e0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            min-height: 80px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn-action {
+            flex: 1;
+            background: #1e1e1e;
+            color: #ccc;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        .btn-action.copied {
+            color: #6fcf97;
+            border-color: #2a4a35;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>VoiceAI</h1>
+        <a href="/logout">Chiqish</a>
+    </header>
+
+    <main>
+        <div class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput" accept=".ogg,.mp3,.wav,.m4a,.mp4,.mov,.avi,.webm,.flac">
+            <div class="drop-icon">🎙</div>
+            <h2>Faylni bu yerga tashlang yoki tanlang</h2>
+            <p>OGG · MP3 · WAV · M4A · FLAC · MP4 · MOV · AVI · WEBM</p>
+        </div>
+        <div class="file-name" id="fileName"></div>
+
+        <button class="btn" id="uploadBtn" disabled>Transkripsiya qilish</button>
+
+        <div class="progress" id="progress">
+            <div class="progress-bar-wrap">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="progress-label">Transkripsiya qilinmoqda...</div>
+        </div>
+
+        <div class="error-box" id="errorBox"></div>
+
+        <div class="result-box" id="resultBox">
+            <h3>Natija</h3>
+            <div class="transcript" id="transcript"></div>
+            <div class="actions">
+                <button class="btn-action" id="copyBtn" onclick="copyText()">Nusxa olish</button>
+                <button class="btn-action" onclick="downloadTxt()">TXT yuklash</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const fileName = document.getElementById('fileName');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const progress = document.getElementById('progress');
+        const errorBox = document.getElementById('errorBox');
+        const resultBox = document.getElementById('resultBox');
+        const transcriptEl = document.getElementById('transcript');
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files[0]) {
+                fileName.textContent = fileInput.files[0].name;
+                uploadBtn.disabled = false;
+            }
+        });
+
+        dropZone.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                fileInput.files = e.dataTransfer.files;
+                fileName.textContent = file.name;
+                uploadBtn.disabled = false;
+            }
+        });
+
+        uploadBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            uploadBtn.disabled = true;
+            progress.style.display = 'block';
+            errorBox.style.display = 'none';
+            resultBox.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || data.error) {
+                    throw new Error(data.error || 'Noma\'lum xato');
+                }
+
+                transcriptEl.textContent = data.transcript;
+                resultBox.style.display = 'block';
+                fileInput.value = '';
+                fileName.textContent = '';
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+            } finally {
+                progress.style.display = 'none';
+                uploadBtn.disabled = false;
+            }
+        });
+
+        function copyText() {
+            const text = transcriptEl.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = 'Nusxalandi!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Nusxa olish';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function downloadTxt() {
+            const text = transcriptEl.textContent;
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'transkripsiya.txt';
+            a.click();
+        }
+    </script>
+</body>
+</html>
