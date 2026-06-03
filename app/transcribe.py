@@ -1,13 +1,10 @@
 import asyncio
 import os
 import base64
-import subprocess
 import tempfile
+import av
 import httpx
 from dotenv import load_dotenv
-
-_BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FFMPEG = os.path.join(_BASE_DIR, "bin", "ffmpeg.exe")
 
 load_dotenv()
 
@@ -35,24 +32,40 @@ PROMPT = (
 )
 
 
+def _extract_audio_sync(input_path: str, output_path: str):
+    with av.open(input_path) as in_container:
+        in_audio = next((s for s in in_container.streams if s.type == "audio"), None)
+        if in_audio is None:
+            raise Exception("Videoda audio yo'q.")
+
+        with av.open(output_path, "w", format="mp3") as out_container:
+            out_stream = out_container.add_stream("libmp3lame", rate=44100)
+            resampler = av.AudioResampler(format="s16p", layout="stereo", rate=44100)
+
+            for frame in in_container.decode(in_audio):
+                for resampled in resampler.resample(frame):
+                    resampled.pts = None
+                    for packet in out_stream.encode(resampled):
+                        out_container.mux(packet)
+
+            for resampled in resampler.resample(None):
+                resampled.pts = None
+                for packet in out_stream.encode(resampled):
+                    out_container.mux(packet)
+
+            for packet in out_stream.encode(None):
+                out_container.mux(packet)
+
+
 async def _extract_audio(file_path: str) -> str:
-    tmp = tempfile.NamedTemporaryFile(suffix=".ogg", delete=False)
+    tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
     tmp.close()
     try:
-        await asyncio.to_thread(
-            subprocess.run,
-            [FFMPEG, "-y", "-i", file_path, "-vn", "-acodec", "libvorbis", "-q:a", "4", tmp.name],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-        )
-    except subprocess.CalledProcessError as e:
+        await asyncio.to_thread(_extract_audio_sync, file_path, tmp.name)
+    except Exception:
         if os.path.exists(tmp.name):
             os.remove(tmp.name)
-        stderr = e.stderr.decode(errors="replace") if e.stderr else ""
-        if "no audio" in stderr.lower() or "does not contain" in stderr.lower():
-            raise Exception("Videoda audio yo'q.")
-        raise Exception("Video fayldan audio ajratib bo'lmadi.")
+        raise
     return tmp.name
 
 
