@@ -307,6 +307,13 @@
             const file = fileInput.files[0];
             if (!file) return;
 
+            const MAX_MB = 4;
+            if (file.size > MAX_MB * 1024 * 1024) {
+                errorBox.textContent = `Fayl hajmi ${MAX_MB} MB dan oshmasligi kerak (server limiti). Kattaroq fayllar uchun avval siqib ko'ring.`;
+                errorBox.style.display = 'block';
+                return;
+            }
+
             uploadBtn.disabled = true;
             progress.style.display = 'block';
             errorBox.style.display = 'none';
@@ -321,7 +328,16 @@
                     body: formData,
                 });
 
-                const data = await res.json();
+                if (res.status === 413) {
+                    throw new Error('Fayl hajmi server limitidan oshib ketdi. Vercel 4.5 MB gacha qabul qiladi.');
+                }
+
+                let data;
+                try {
+                    data = await res.json();
+                } catch {
+                    throw new Error(`Server xatosi (${res.status}): ${res.statusText || 'Noma\'lum xato'}`);
+                }
 
                 if (!res.ok || data.error) {
                     throw new Error(data.error || 'Noma\'lum xato');
