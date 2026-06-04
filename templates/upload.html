@@ -4,104 +4,309 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoiceAI — Transkripsiya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0f0f0f;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
             color: #f0f0f0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            background-image: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(99,102,241,0.07) 0%, transparent 60%);
         }
 
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 24px;
-            border-bottom: 1px solid #1e1e1e;
+            padding: 14px 28px;
+            border-bottom: 1px solid #181818;
+            background: rgba(10,10,10,0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
-        header h1 { font-size: 16px; font-weight: 600; color: #fff; }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-        header a { font-size: 13px; color: #666; text-decoration: none; }
-        header a:hover { color: #aaa; }
+        .header-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+
+        header h1 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: -0.3px;
+        }
+
+        .logout-btn {
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #1f1f1f;
+            transition: color 0.15s, border-color 0.15s, background 0.15s;
+            font-family: inherit;
+        }
+
+        .logout-btn:hover { color: #ddd; border-color: #333; background: #161616; }
 
         main {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px 24px;
-            max-width: 600px;
+            padding: 48px 24px 64px;
+            max-width: 700px;
             margin: 0 auto;
             width: 100%;
         }
 
+        .page-title {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .page-title h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .page-title p {
+            font-size: 13.5px;
+            color: #555;
+        }
+
         .drop-zone {
             width: 100%;
-            border: 2px dashed #2a2a2a;
-            border-radius: 12px;
-            padding: 48px 24px;
+            border: 1.5px dashed #252525;
+            border-radius: 16px;
+            padding: 52px 32px;
             text-align: center;
             cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
             position: relative;
+            background: #0e0e0e;
         }
 
         .drop-zone:hover,
-        .drop-zone.dragover { border-color: #555; background: #151515; }
+        .drop-zone.dragover {
+            border-color: #6366f1;
+            background: #0f0f18;
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.07);
+        }
+
+        .drop-zone.has-file {
+            border-style: solid;
+            border-color: #2a2a2a;
+            background: #111;
+        }
+
+
+        .drop-icon {
+            font-size: 40px;
+            margin-bottom: 14px;
+            display: block;
+            transition: transform 0.2s;
+        }
 
         .drop-zone input[type="file"] {
             position: absolute;
             inset: 0;
-            opacity: 0;
-            cursor: pointer;
             width: 100%;
             height: 100%;
+            opacity: 0;
+            cursor: pointer;
         }
 
-        .drop-icon { font-size: 36px; margin-bottom: 12px; }
+        .drop-icon,
+        .drop-zone h2,
+        .drop-zone p {
+            pointer-events: none;
+        }
 
-        .drop-zone h2 { font-size: 15px; font-weight: 500; color: #ccc; margin-bottom: 6px; }
-        .drop-zone p { font-size: 12px; color: #555; }
+        .drop-zone:hover .drop-icon { transform: scale(1.1); }
 
-        .file-name { margin-top: 12px; font-size: 13px; color: #888; min-height: 18px; }
+        .drop-zone h2 {
+            font-size: 15px;
+            font-weight: 500;
+            color: #ccc;
+            margin-bottom: 8px;
+        }
 
-        .btn {
-            margin-top: 20px;
+        .drop-zone .hint {
+            font-size: 12.5px;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .drop-zone .hint span {
+            color: #6366f1;
+            font-weight: 500;
+        }
+
+        /* File info chip */
+        .file-info {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 10px;
+            padding: 10px 14px;
             width: 100%;
-            background: #fff;
-            color: #000;
+        }
+
+        .file-info.visible { display: flex; }
+
+        .file-type-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 7px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .badge-audio { background: rgba(99,102,241,0.15); color: #818cf8; }
+        .badge-video { background: rgba(236,72,153,0.12); color: #f472b6; }
+
+        .file-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-name-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #ddd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-size-text {
+            font-size: 11.5px;
+            color: #555;
+            margin-top: 1px;
+        }
+
+        .clear-file {
+            background: none;
             border: none;
-            border-radius: 8px;
+            color: #444;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            border-radius: 4px;
+            transition: color 0.15s, background 0.15s;
+            flex-shrink: 0;
+            width: auto;
+            margin: 0;
+        }
+
+        .clear-file:hover { color: #f87171; background: rgba(239,68,68,0.08); }
+
+        .clear-file svg { width: 14px; height: 14px; }
+
+        /* Upload button */
+        .btn {
+            margin-top: 16px;
+            width: 100%;
+            background: #6366f1;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
             padding: 13px;
             font-size: 14px;
             font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .btn:hover { background: #e0e0e0; }
-        .btn:disabled { background: #2a2a2a; color: #555; cursor: not-allowed; }
+        .btn:hover { background: #5254cc; box-shadow: 0 4px 20px rgba(99,102,241,0.3); }
+        .btn:active { transform: scale(0.99); }
+        .btn:disabled { background: #1a1a1a; color: #444; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        .progress { display: none; margin-top: 20px; width: 100%; }
+        /* Progress */
+        .progress {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+            background: #111;
+            border: 1px solid #1e1e1e;
+            border-radius: 12px;
+            padding: 16px 20px;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .progress-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #2a2a2a;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .progress-label {
+            font-size: 13px;
+            color: #888;
+            flex: 1;
+        }
 
         .progress-bar-wrap {
-            background: #1e1e1e;
+            background: #1a1a1a;
             border-radius: 999px;
-            height: 4px;
+            height: 3px;
             overflow: hidden;
-            margin-bottom: 10px;
         }
 
         .progress-bar {
             height: 100%;
-            background: #fff;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
             border-radius: 999px;
-            animation: indeterminate 1.4s infinite;
+            animation: indeterminate 1.6s cubic-bezier(0.4,0,0.6,1) infinite;
         }
 
         @keyframes indeterminate {
@@ -110,99 +315,213 @@
             100% { width: 0%;  margin-left: 100%; }
         }
 
-        .progress-label { font-size: 12px; color: #666; text-align: center; }
-
+        /* Error */
         .error-box {
             display: none;
-            margin-top: 20px;
-            background: #2a1515;
-            border: 1px solid #5a2020;
-            border-radius: 8px;
-            padding: 12px 16px;
+            margin-top: 16px;
+            background: rgba(239,68,68,0.07);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 12px;
+            padding: 13px 16px;
             font-size: 13px;
-            color: #f08080;
+            color: #f87171;
             width: 100%;
+            display: none;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.5;
         }
 
-        .result-box { display: none; margin-top: 24px; width: 100%; }
+        .error-box::before { content: '⚠'; flex-shrink: 0; margin-top: 1px; }
 
-        .result-box h3 {
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 10px;
+        /* Result */
+        .result-box {
+            display: none;
+            margin-top: 28px;
+            width: 100%;
+            animation: fadeUp 0.35s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .result-header h3 {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
+        }
+
+        .result-meta {
+            font-size: 11.5px;
+            color: #444;
         }
 
         .transcript {
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            border-radius: 10px;
-            padding: 16px;
+            background: #111;
+            border: 1px solid #1f1f1f;
+            border-radius: 12px;
+            padding: 18px 20px;
             font-size: 14px;
-            line-height: 1.7;
-            color: #e0e0e0;
+            line-height: 1.8;
+            color: #ddd;
             white-space: pre-wrap;
             word-break: break-word;
-            min-height: 80px;
+            min-height: 96px;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
-        .actions { display: flex; gap: 10px; margin-top: 12px; }
+        .transcript::-webkit-scrollbar { width: 6px; }
+        .transcript::-webkit-scrollbar-track { background: transparent; }
+        .transcript::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
 
         .btn-action {
             flex: 1;
-            background: #1e1e1e;
-            color: #ccc;
-            border: 1px solid #2a2a2a;
+            background: #141414;
+            color: #aaa;
+            border: 1px solid #1f1f1f;
             border-radius: 8px;
             padding: 10px;
             font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
             cursor: pointer;
-            transition: background 0.2s, color 0.2s;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
-        .btn-action:hover { background: #2a2a2a; color: #fff; }
-        .btn-action.copied { color: #6fcf97; border-color: #2a4a35; }
+        .btn-action:hover { background: #1e1e1e; color: #fff; border-color: #2a2a2a; }
+        .btn-action.copied { color: #34d399; border-color: #1a3d30; background: rgba(52,211,153,0.06); }
+
+        .formats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 28px;
+        }
+
+        .format-tag {
+            font-size: 11px;
+            color: #383838;
+            background: #131313;
+            border: 1px solid #1c1c1c;
+            border-radius: 5px;
+            padding: 3px 8px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>VoiceAI</h1>
-        <a href="/logout">Chiqish</a>
+        <div class="header-brand">
+            <div class="header-icon">🎙</div>
+            <h1>VoiceAI</h1>
+        </div>
+        <a href="/logout" class="logout-btn">Chiqish</a>
     </header>
 
     <main>
+        <div class="page-title">
+            <h2>Audio transkripsiyasi</h2>
+            <p>Fayl yuklang — sun'iy intellekt matnni avtomatik aniqlaydi</p>
+        </div>
+
         <div class="drop-zone" id="dropZone">
             <input type="file" id="fileInput" accept=".ogg,.mp3,.wav,.m4a,.mp4,.mov,.avi,.webm,.flac">
-            <div class="drop-icon">🎙</div>
-            <h2>Faylni bu yerga tashlang yoki tanlang</h2>
-            <p>Audio (max 4 MB) · Video (max 100 MB — audio avtomatik ajratiladi)</p>
-            <p style="margin-top:6px">OGG · MP3 · WAV · M4A · FLAC · MP4 · MOV · AVI · WEBM</p>
+            <span class="drop-icon">🎵</span>
+            <h2>Faylni bu yerga tashlang yoki <span style="color:#6366f1">tanlang</span></h2>
+            <p class="hint">
+                Audio: <span>max 4 MB</span> &nbsp;·&nbsp; Video: <span>max 100 MB</span> (audio avtomatik ajratiladi)
+            </p>
         </div>
-        <div class="file-name" id="fileName"></div>
 
-        <button class="btn" id="uploadBtn" disabled>Transkripsiya qilish</button>
+        <div class="file-info" id="fileInfo">
+            <span class="file-type-badge" id="typeBadge">MP3</span>
+            <div class="file-details">
+                <div class="file-name-text" id="fileNameText"></div>
+                <div class="file-size-text" id="fileSizeText"></div>
+            </div>
+            <button class="clear-file" id="clearFile" title="Faylni olib tashlash">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <button class="btn" id="uploadBtn" disabled>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 16 12 12 8 16"/>
+                <line x1="12" y1="12" x2="12" y2="21"/>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+            Transkripsiya qilish
+        </button>
 
         <div class="progress" id="progress">
+            <div class="progress-header">
+                <div class="progress-spinner"></div>
+                <div class="progress-label" id="progressLabel">Ishlanmoqda...</div>
+            </div>
             <div class="progress-bar-wrap">
                 <div class="progress-bar"></div>
             </div>
-            <div class="progress-label" id="progressLabel">Ishlanmoqda...</div>
         </div>
 
         <div class="error-box" id="errorBox"></div>
 
         <div class="result-box" id="resultBox">
-            <h3>Natija</h3>
+            <div class="result-header">
+                <h3>Natija</h3>
+                <span class="result-meta" id="resultMeta"></span>
+            </div>
             <div class="transcript" id="transcript"></div>
             <div class="actions">
-                <button class="btn-action" id="copyBtn" onclick="copyText()">Nusxa olish</button>
-                <button class="btn-action" onclick="downloadTxt()">TXT yuklash</button>
+                <button class="btn-action" id="copyBtn" onclick="copyText()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Nusxa olish
+                </button>
+                <button class="btn-action" onclick="downloadTxt()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    TXT yuklash
+                </button>
             </div>
+        </div>
+
+        <div class="formats">
+            <span class="format-tag">OGG</span>
+            <span class="format-tag">MP3</span>
+            <span class="format-tag">WAV</span>
+            <span class="format-tag">M4A</span>
+            <span class="format-tag">FLAC</span>
+            <span class="format-tag">MP4</span>
+            <span class="format-tag">MOV</span>
+            <span class="format-tag">AVI</span>
+            <span class="format-tag">WEBM</span>
         </div>
     </main>
 
-    <!-- MP3 encoder (lamejs) — needed for browser-side video→audio extraction -->
     <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
 
     <script>
@@ -210,35 +529,57 @@
         const MAX_VIDEO_MB = 100;
         const MAX_AUDIO_MB = 4;
 
-        const fileInput      = document.getElementById('fileInput');
-        const dropZone       = document.getElementById('dropZone');
-        const fileName       = document.getElementById('fileName');
-        const uploadBtn      = document.getElementById('uploadBtn');
-        const progress       = document.getElementById('progress');
-        const progressLabel  = document.getElementById('progressLabel');
-        const errorBox       = document.getElementById('errorBox');
-        const resultBox      = document.getElementById('resultBox');
-        const transcriptEl   = document.getElementById('transcript');
+        const fileInput     = document.getElementById('fileInput');
+        const dropZone      = document.getElementById('dropZone');
+        const fileInfo      = document.getElementById('fileInfo');
+        const fileNameText  = document.getElementById('fileNameText');
+        const fileSizeText  = document.getElementById('fileSizeText');
+        const typeBadge     = document.getElementById('typeBadge');
+        const clearFile     = document.getElementById('clearFile');
+        const uploadBtn     = document.getElementById('uploadBtn');
+        const progress      = document.getElementById('progress');
+        const progressLabel = document.getElementById('progressLabel');
+        const errorBox      = document.getElementById('errorBox');
+        const resultBox     = document.getElementById('resultBox');
+        const transcriptEl  = document.getElementById('transcript');
+        const resultMeta    = document.getElementById('resultMeta');
 
         function getExt(name) { return name.split('.').pop().toLowerCase(); }
         function isVideo(file) { return VIDEO_EXTS.has(getExt(file.name)); }
 
-        function showProgress(msg) {
-            progress.style.display = 'block';
-            progressLabel.textContent = msg;
+        function formatBytes(bytes) {
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+            return (bytes / 1024 / 1024).toFixed(1) + ' MB';
         }
 
-        function showError(msg) {
-            errorBox.textContent = msg;
-            errorBox.style.display = 'block';
+        function setFile(file) {
+            const ext = getExt(file.name).toUpperCase();
+            const video = isVideo(file);
+            typeBadge.textContent = ext;
+            typeBadge.className = 'file-type-badge ' + (video ? 'badge-video' : 'badge-audio');
+            fileNameText.textContent = file.name;
+            fileSizeText.textContent = formatBytes(file.size);
+            fileInfo.classList.add('visible');
+            dropZone.classList.add('has-file');
+            uploadBtn.disabled = false;
+            errorBox.style.display = 'none';
         }
+
+        function clearFileState() {
+            fileInput.value = '';
+            fileInfo.classList.remove('visible');
+            dropZone.classList.remove('has-file');
+            uploadBtn.disabled = true;
+            errorBox.style.display = 'none';
+        }
+
+        clearFile.addEventListener('click', (e) => {
+            e.stopPropagation();
+            clearFileState();
+        });
 
         fileInput.addEventListener('change', () => {
-            if (fileInput.files[0]) {
-                fileName.textContent = fileInput.files[0].name;
-                uploadBtn.disabled = false;
-                errorBox.style.display = 'none';
-            }
+            if (fileInput.files[0]) setFile(fileInput.files[0]);
         });
 
         dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -249,18 +590,25 @@
             const file = e.dataTransfer.files[0];
             if (file) {
                 fileInput.files = e.dataTransfer.files;
-                fileName.textContent = file.name;
-                uploadBtn.disabled = false;
-                errorBox.style.display = 'none';
+                setFile(file);
             }
         });
 
-        // ─── Browser-side video → MP3 extraction ───────────────────────────
-        async function extractAudio(videoFile) {
-            showProgress('Video o\'qilmoqda...');
-            const arrayBuffer = await videoFile.arrayBuffer();
+        function showProgress(msg) {
+            progress.style.display = 'block';
+            progressLabel.textContent = msg;
+        }
 
-            showProgress('Audio dekodlanmoqda...');
+        function showError(msg) {
+            errorBox.textContent = '';
+            errorBox.style.display = 'flex';
+            errorBox.appendChild(document.createTextNode(msg));
+        }
+
+        async function extractAudio(videoFile) {
+            showProgress("Video o'qilmoqda...");
+            const arrayBuffer = await videoFile.arrayBuffer();
+            showProgress("Audio dekodlanmoqda...");
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             let audioBuf;
             try {
@@ -268,28 +616,21 @@
             } finally {
                 await ctx.close();
             }
-
-            showProgress('16 kHz mono ga o\'tkazilmoqda...');
+            showProgress("16 kHz mono ga o'tkazilmoqda...");
             const TARGET_SR = 16000;
-            const offCtx = new OfflineAudioContext(
-                1,
-                Math.ceil(audioBuf.duration * TARGET_SR),
-                TARGET_SR
-            );
+            const offCtx = new OfflineAudioContext(1, Math.ceil(audioBuf.duration * TARGET_SR), TARGET_SR);
             const src = offCtx.createBufferSource();
             src.buffer = audioBuf;
             src.connect(offCtx.destination);
             src.start(0);
             const resampled = await offCtx.startRendering();
-
-            showProgress('MP3 yaratilmoqda...');
+            showProgress("MP3 yaratilmoqda...");
             const pcm = resampled.getChannelData(0);
             const int16 = new Int16Array(pcm.length);
             for (let i = 0; i < pcm.length; i++) {
                 int16[i] = Math.max(-32768, Math.min(32767, pcm[i] * 32768));
             }
-
-            const enc = new lamejs.Mp3Encoder(1, TARGET_SR, 32); // mono, 16kHz, 32 kbps
+            const enc = new lamejs.Mp3Encoder(1, TARGET_SR, 32);
             const chunks = [];
             const BLOCK = 1152;
             for (let i = 0; i < int16.length; i += BLOCK) {
@@ -298,23 +639,18 @@
             }
             const tail = enc.flush();
             if (tail.length) chunks.push(new Uint8Array(tail));
-
             const total = chunks.reduce((s, c) => s + c.length, 0);
             const merged = new Uint8Array(total);
             let off = 0;
             for (const c of chunks) { merged.set(c, off); off += c.length; }
-
             return new File([merged], 'audio.mp3', { type: 'audio/mpeg' });
         }
-        // ───────────────────────────────────────────────────────────────────
 
         uploadBtn.addEventListener('click', async () => {
             const file = fileInput.files[0];
             if (!file) return;
 
             const video = isVideo(file);
-
-            // Size gate
             const limitMB = video ? MAX_VIDEO_MB : MAX_AUDIO_MB;
             if (file.size > limitMB * 1024 * 1024) {
                 showError(`Fayl hajmi ${limitMB} MB dan oshmasligi kerak.`);
@@ -331,22 +667,14 @@
                 try {
                     toUpload = await extractAudio(file);
                 } catch (err) {
-                    showError(
-                        'Audio ajratib bo\'lmadi: ' + err.message +
-                        '. Iltimos faylni MP3 yoki WAV formatga o\'tkazing.'
-                    );
+                    showError("Audio ajratib bo'lmadi: " + err.message + ". Iltimos faylni MP3 yoki WAV formatga o'tkazing.");
                     progress.style.display = 'none';
                     uploadBtn.disabled = false;
                     return;
                 }
-
-                // Guard: extracted audio must still fit Vercel's 4.5 MB limit
                 if (toUpload.size > 4 * 1024 * 1024) {
                     const mb = (toUpload.size / 1024 / 1024).toFixed(1);
-                    showError(
-                        `Ajratilgan audio (${mb} MB) juda katta. ` +
-                        'Qisqaroq video yuboring yoki audio faylni alohida siqing.'
-                    );
+                    showError(`Ajratilgan audio (${mb} MB) juda katta. Qisqaroq video yuboring yoki audio faylni alohida siqing.`);
                     progress.style.display = 'none';
                     uploadBtn.disabled = false;
                     return;
@@ -360,38 +688,38 @@
 
             try {
                 const res = await fetch('/upload', { method: 'POST', body: formData });
-
-                if (res.status === 413) {
-                    throw new Error('Fayl server limitidan oshib ketdi (4.5 MB).');
-                }
-
+                if (res.status === 413) throw new Error('Fayl server limitidan oshib ketdi (4.5 MB).');
                 let data;
                 try {
                     data = await res.json();
                 } catch (e) {
-                    throw new Error(`Server xatosi (${res.status}): ${res.statusText || 'Noma\'lum xato'}`);
+                    throw new Error(`Server xatosi (${res.status}): ${res.statusText || "Noma'lum xato"}`);
                 }
-
-                if (!res.ok || data.error) throw new Error(data.error || 'Noma\'lum xato');
+                if (!res.ok || data.error) throw new Error(data.error || "Noma'lum xato");
 
                 transcriptEl.textContent = data.transcript;
+                const words = data.transcript.trim().split(/\s+/).filter(Boolean).length;
+                const chars = data.transcript.length;
+                resultMeta.textContent = `${words} so'z · ${chars} belgi`;
                 resultBox.style.display = 'block';
-                fileInput.value = '';
-                fileName.textContent = '';
+                clearFileState();
             } catch (err) {
                 showError(err.message);
             } finally {
                 progress.style.display = 'none';
-                uploadBtn.disabled = false;
+                uploadBtn.disabled = !fileInput.files[0];
             }
         });
 
         function copyText() {
             navigator.clipboard.writeText(transcriptEl.textContent).then(() => {
                 const btn = document.getElementById('copyBtn');
-                btn.textContent = 'Nusxalandi!';
+                btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Nusxalandi!`;
                 btn.classList.add('copied');
-                setTimeout(() => { btn.textContent = 'Nusxa olish'; btn.classList.remove('copied'); }, 2000);
+                setTimeout(() => {
+                    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Nusxa olish`;
+                    btn.classList.remove('copied');
+                }, 2000);
             });
         }
 
