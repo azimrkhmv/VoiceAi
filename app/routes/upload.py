@@ -12,7 +12,7 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 router = APIRouter()
 templates = Jinja2Templates(directory=os.path.join(_ROOT, "templates"))
 
-MAX_UPLOAD_BYTES = 100 * 1024 * 1024  # 100 MB
+MAX_UPLOAD_BYTES = 4 * 1024 * 1024  # 4 MB — keeps payload under Vercel's 4.5 MB request limit
 
 
 def allowed_file(filename: str) -> bool:
@@ -24,7 +24,10 @@ def allowed_file(filename: str) -> bool:
 async def index(request: Request):
     if not check_login(request):
         return RedirectResponse(url="/login", status_code=302)
-    return templates.TemplateResponse("upload.html", {"request": request})
+    return templates.TemplateResponse(
+        "upload.html", {"request": request},
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @router.post("/upload")
