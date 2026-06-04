@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoiceAI — Transkripsiya</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -28,21 +24,10 @@
             border-bottom: 1px solid #1e1e1e;
         }
 
-        header h1 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-        }
+        header h1 { font-size: 16px; font-weight: 600; color: #fff; }
 
-        header a {
-            font-size: 13px;
-            color: #666;
-            text-decoration: none;
-        }
-
-        header a:hover {
-            color: #aaa;
-        }
+        header a { font-size: 13px; color: #666; text-decoration: none; }
+        header a:hover { color: #aaa; }
 
         main {
             flex: 1;
@@ -67,10 +52,7 @@
         }
 
         .drop-zone:hover,
-        .drop-zone.dragover {
-            border-color: #555;
-            background: #151515;
-        }
+        .drop-zone.dragover { border-color: #555; background: #151515; }
 
         .drop-zone input[type="file"] {
             position: absolute;
@@ -81,29 +63,12 @@
             height: 100%;
         }
 
-        .drop-icon {
-            font-size: 36px;
-            margin-bottom: 12px;
-        }
+        .drop-icon { font-size: 36px; margin-bottom: 12px; }
 
-        .drop-zone h2 {
-            font-size: 15px;
-            font-weight: 500;
-            color: #ccc;
-            margin-bottom: 6px;
-        }
+        .drop-zone h2 { font-size: 15px; font-weight: 500; color: #ccc; margin-bottom: 6px; }
+        .drop-zone p { font-size: 12px; color: #555; }
 
-        .drop-zone p {
-            font-size: 12px;
-            color: #555;
-        }
-
-        .file-name {
-            margin-top: 12px;
-            font-size: 13px;
-            color: #888;
-            min-height: 18px;
-        }
+        .file-name { margin-top: 12px; font-size: 13px; color: #888; min-height: 18px; }
 
         .btn {
             margin-top: 20px;
@@ -119,21 +84,10 @@
             transition: background 0.2s;
         }
 
-        .btn:hover {
-            background: #e0e0e0;
-        }
+        .btn:hover { background: #e0e0e0; }
+        .btn:disabled { background: #2a2a2a; color: #555; cursor: not-allowed; }
 
-        .btn:disabled {
-            background: #2a2a2a;
-            color: #555;
-            cursor: not-allowed;
-        }
-
-        .progress {
-            display: none;
-            margin-top: 20px;
-            width: 100%;
-        }
+        .progress { display: none; margin-top: 20px; width: 100%; }
 
         .progress-bar-wrap {
             background: #1e1e1e;
@@ -147,22 +101,16 @@
             height: 100%;
             background: #fff;
             border-radius: 999px;
-            width: 0%;
-            transition: width 0.3s;
             animation: indeterminate 1.4s infinite;
         }
 
         @keyframes indeterminate {
-            0%   { width: 0%; margin-left: 0%; }
+            0%   { width: 0%;  margin-left: 0%; }
             50%  { width: 60%; margin-left: 20%; }
-            100% { width: 0%; margin-left: 100%; }
+            100% { width: 0%;  margin-left: 100%; }
         }
 
-        .progress-label {
-            font-size: 12px;
-            color: #666;
-            text-align: center;
-        }
+        .progress-label { font-size: 12px; color: #666; text-align: center; }
 
         .error-box {
             display: none;
@@ -176,11 +124,7 @@
             width: 100%;
         }
 
-        .result-box {
-            display: none;
-            margin-top: 24px;
-            width: 100%;
-        }
+        .result-box { display: none; margin-top: 24px; width: 100%; }
 
         .result-box h3 {
             font-size: 13px;
@@ -203,11 +147,7 @@
             min-height: 80px;
         }
 
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-        }
+        .actions { display: flex; gap: 10px; margin-top: 12px; }
 
         .btn-action {
             flex: 1;
@@ -221,15 +161,8 @@
             transition: background 0.2s, color 0.2s;
         }
 
-        .btn-action:hover {
-            background: #2a2a2a;
-            color: #fff;
-        }
-
-        .btn-action.copied {
-            color: #6fcf97;
-            border-color: #2a4a35;
-        }
+        .btn-action:hover { background: #2a2a2a; color: #fff; }
+        .btn-action.copied { color: #6fcf97; border-color: #2a4a35; }
     </style>
 </head>
 <body>
@@ -243,7 +176,8 @@
             <input type="file" id="fileInput" accept=".ogg,.mp3,.wav,.m4a,.mp4,.mov,.avi,.webm,.flac">
             <div class="drop-icon">🎙</div>
             <h2>Faylni bu yerga tashlang yoki tanlang</h2>
-            <p>OGG · MP3 · WAV · M4A · FLAC · MP4 · MOV · AVI · WEBM</p>
+            <p>Audio (max 4 MB) · Video (max 100 MB — audio avtomatik ajratiladi)</p>
+            <p style="margin-top:6px">OGG · MP3 · WAV · M4A · FLAC · MP4 · MOV · AVI · WEBM</p>
         </div>
         <div class="file-name" id="fileName"></div>
 
@@ -253,7 +187,7 @@
             <div class="progress-bar-wrap">
                 <div class="progress-bar"></div>
             </div>
-            <div class="progress-label">Transkripsiya qilinmoqda...</div>
+            <div class="progress-label" id="progressLabel">Ishlanmoqda...</div>
         </div>
 
         <div class="error-box" id="errorBox"></div>
@@ -268,30 +202,47 @@
         </div>
     </main>
 
+    <!-- MP3 encoder (lamejs) — needed for browser-side video→audio extraction -->
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+
     <script>
-        const fileInput = document.getElementById('fileInput');
-        const dropZone = document.getElementById('dropZone');
-        const fileName = document.getElementById('fileName');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const progress = document.getElementById('progress');
-        const errorBox = document.getElementById('errorBox');
-        const resultBox = document.getElementById('resultBox');
-        const transcriptEl = document.getElementById('transcript');
+        const VIDEO_EXTS = new Set(['mp4', 'mov', 'avi', 'webm']);
+        const MAX_VIDEO_MB = 100;
+        const MAX_AUDIO_MB = 4;
+
+        const fileInput      = document.getElementById('fileInput');
+        const dropZone       = document.getElementById('dropZone');
+        const fileName       = document.getElementById('fileName');
+        const uploadBtn      = document.getElementById('uploadBtn');
+        const progress       = document.getElementById('progress');
+        const progressLabel  = document.getElementById('progressLabel');
+        const errorBox       = document.getElementById('errorBox');
+        const resultBox      = document.getElementById('resultBox');
+        const transcriptEl   = document.getElementById('transcript');
+
+        function getExt(name) { return name.split('.').pop().toLowerCase(); }
+        function isVideo(file) { return VIDEO_EXTS.has(getExt(file.name)); }
+
+        function showProgress(msg) {
+            progress.style.display = 'block';
+            progressLabel.textContent = msg;
+        }
+
+        function showError(msg) {
+            errorBox.textContent = msg;
+            errorBox.style.display = 'block';
+        }
 
         fileInput.addEventListener('change', () => {
             if (fileInput.files[0]) {
                 fileName.textContent = fileInput.files[0].name;
                 uploadBtn.disabled = false;
+                errorBox.style.display = 'none';
             }
         });
 
-        dropZone.addEventListener('dragover', e => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
         dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-
         dropZone.addEventListener('drop', e => {
             e.preventDefault();
             dropZone.classList.remove('dragover');
@@ -300,56 +251,135 @@
                 fileInput.files = e.dataTransfer.files;
                 fileName.textContent = file.name;
                 uploadBtn.disabled = false;
+                errorBox.style.display = 'none';
             }
         });
+
+        // ─── Browser-side video → MP3 extraction ───────────────────────────
+        async function extractAudio(videoFile) {
+            showProgress('Video o\'qilmoqda...');
+            const arrayBuffer = await videoFile.arrayBuffer();
+
+            showProgress('Audio dekodlanmoqda...');
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            let audioBuf;
+            try {
+                audioBuf = await ctx.decodeAudioData(arrayBuffer);
+            } finally {
+                await ctx.close();
+            }
+
+            showProgress('16 kHz mono ga o\'tkazilmoqda...');
+            const TARGET_SR = 16000;
+            const offCtx = new OfflineAudioContext(
+                1,
+                Math.ceil(audioBuf.duration * TARGET_SR),
+                TARGET_SR
+            );
+            const src = offCtx.createBufferSource();
+            src.buffer = audioBuf;
+            src.connect(offCtx.destination);
+            src.start(0);
+            const resampled = await offCtx.startRendering();
+
+            showProgress('MP3 yaratilmoqda...');
+            const pcm = resampled.getChannelData(0);
+            const int16 = new Int16Array(pcm.length);
+            for (let i = 0; i < pcm.length; i++) {
+                int16[i] = Math.max(-32768, Math.min(32767, pcm[i] * 32768));
+            }
+
+            const enc = new lamejs.Mp3Encoder(1, TARGET_SR, 32); // mono, 16kHz, 32 kbps
+            const chunks = [];
+            const BLOCK = 1152;
+            for (let i = 0; i < int16.length; i += BLOCK) {
+                const buf = enc.encodeBuffer(int16.subarray(i, i + BLOCK));
+                if (buf.length) chunks.push(new Uint8Array(buf));
+            }
+            const tail = enc.flush();
+            if (tail.length) chunks.push(new Uint8Array(tail));
+
+            const total = chunks.reduce((s, c) => s + c.length, 0);
+            const merged = new Uint8Array(total);
+            let off = 0;
+            for (const c of chunks) { merged.set(c, off); off += c.length; }
+
+            return new File([merged], 'audio.mp3', { type: 'audio/mpeg' });
+        }
+        // ───────────────────────────────────────────────────────────────────
 
         uploadBtn.addEventListener('click', async () => {
             const file = fileInput.files[0];
             if (!file) return;
 
-            const MAX_MB = 4;
-            if (file.size > MAX_MB * 1024 * 1024) {
-                errorBox.textContent = `Fayl hajmi ${MAX_MB} MB dan oshmasligi kerak (server limiti). Kattaroq fayllar uchun avval siqib ko'ring.`;
-                errorBox.style.display = 'block';
+            const video = isVideo(file);
+
+            // Size gate
+            const limitMB = video ? MAX_VIDEO_MB : MAX_AUDIO_MB;
+            if (file.size > limitMB * 1024 * 1024) {
+                showError(`Fayl hajmi ${limitMB} MB dan oshmasligi kerak.`);
                 return;
             }
 
             uploadBtn.disabled = true;
-            progress.style.display = 'block';
             errorBox.style.display = 'none';
             resultBox.style.display = 'none';
 
+            let toUpload = file;
+
+            if (video) {
+                try {
+                    toUpload = await extractAudio(file);
+                } catch (err) {
+                    showError(
+                        'Audio ajratib bo\'lmadi: ' + err.message +
+                        '. Iltimos faylni MP3 yoki WAV formatga o\'tkazing.'
+                    );
+                    progress.style.display = 'none';
+                    uploadBtn.disabled = false;
+                    return;
+                }
+
+                // Guard: extracted audio must still fit Vercel's 4.5 MB limit
+                if (toUpload.size > 4 * 1024 * 1024) {
+                    const mb = (toUpload.size / 1024 / 1024).toFixed(1);
+                    showError(
+                        `Ajratilgan audio (${mb} MB) juda katta. ` +
+                        'Qisqaroq video yuboring yoki audio faylni alohida siqing.'
+                    );
+                    progress.style.display = 'none';
+                    uploadBtn.disabled = false;
+                    return;
+                }
+            }
+
+            showProgress('Transkripsiya qilinmoqda...');
+
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', toUpload);
 
             try {
-                const res = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
+                const res = await fetch('/upload', { method: 'POST', body: formData });
 
                 if (res.status === 413) {
-                    throw new Error('Fayl hajmi server limitidan oshib ketdi. Vercel 4.5 MB gacha qabul qiladi.');
+                    throw new Error('Fayl server limitidan oshib ketdi (4.5 MB).');
                 }
 
                 let data;
                 try {
                     data = await res.json();
-                } catch {
+                } catch (e) {
                     throw new Error(`Server xatosi (${res.status}): ${res.statusText || 'Noma\'lum xato'}`);
                 }
 
-                if (!res.ok || data.error) {
-                    throw new Error(data.error || 'Noma\'lum xato');
-                }
+                if (!res.ok || data.error) throw new Error(data.error || 'Noma\'lum xato');
 
                 transcriptEl.textContent = data.transcript;
                 resultBox.style.display = 'block';
                 fileInput.value = '';
                 fileName.textContent = '';
             } catch (err) {
-                errorBox.textContent = err.message;
-                errorBox.style.display = 'block';
+                showError(err.message);
             } finally {
                 progress.style.display = 'none';
                 uploadBtn.disabled = false;
@@ -357,21 +387,16 @@
         });
 
         function copyText() {
-            const text = transcriptEl.textContent;
-            navigator.clipboard.writeText(text).then(() => {
+            navigator.clipboard.writeText(transcriptEl.textContent).then(() => {
                 const btn = document.getElementById('copyBtn');
                 btn.textContent = 'Nusxalandi!';
                 btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.textContent = 'Nusxa olish';
-                    btn.classList.remove('copied');
-                }, 2000);
+                setTimeout(() => { btn.textContent = 'Nusxa olish'; btn.classList.remove('copied'); }, 2000);
             });
         }
 
         function downloadTxt() {
-            const text = transcriptEl.textContent;
-            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const blob = new Blob([transcriptEl.textContent], { type: 'text/plain;charset=utf-8' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'transkripsiya.txt';
