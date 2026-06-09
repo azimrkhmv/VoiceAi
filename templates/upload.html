@@ -452,7 +452,7 @@
             <span class="drop-icon">🎵</span>
             <h2>Faylni bu yerga tashlang yoki <span style="color:#6366f1">tanlang</span></h2>
             <p class="hint">
-                Audio: <span>max 4 MB</span> &nbsp;·&nbsp; Video: <span>max 100 MB</span> (audio avtomatik ajratiladi)
+                Audio yoki video: <span>max 50 MB</span> &nbsp;·&nbsp; audio brauzerda avtomatik siqiladi
             </p>
         </div>
 
@@ -526,8 +526,10 @@
 
     <script>
         const VIDEO_EXTS = new Set(['mp4', 'mov', 'avi', 'webm']);
-        const MAX_VIDEO_MB = 100;
-        const MAX_AUDIO_MB = 4;
+        // Every file (audio + video) is decoded → 16 kHz mono → 32 kbps MP3 in the
+        // browser before upload, so the server only ever receives a small file
+        // (well under Vercel's 4.5 MB request-body cap). Input limit is 50 MB.
+        const MAX_INPUT_MB = 50;
 
         const fileInput     = document.getElementById('fileInput');
         const dropZone      = document.getElementById('dropZone');
@@ -605,9 +607,9 @@
             errorBox.appendChild(document.createTextNode(msg));
         }
 
-        async function extractAudio(videoFile) {
-            showProgress("Video o'qilmoqda...");
-            const arrayBuffer = await videoFile.arrayBuffer();
+        async function extractAudio(inputFile) {
+            showProgress("Fayl o'qilmoqda...");
+            const arrayBuffer = await inputFile.arrayBuffer();
             showProgress("Audio dekodlanmoqda...");
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             let audioBuf;
@@ -650,10 +652,8 @@
             const file = fileInput.files[0];
             if (!file) return;
 
-            const video = isVideo(file);
-            const limitMB = video ? MAX_VIDEO_MB : MAX_AUDIO_MB;
-            if (file.size > limitMB * 1024 * 1024) {
-                showError(`Fayl hajmi ${limitMB} MB dan oshmasligi kerak.`);
+            if (file.size > MAX_INPUT_MB * 1024 * 1024) {
+                showError(`Fayl hajmi ${MAX_INPUT_MB} MB dan oshmasligi kerak.`);
                 return;
             }
 
@@ -661,24 +661,21 @@
             errorBox.style.display = 'none';
             resultBox.style.display = 'none';
 
-            let toUpload = file;
-
-            if (video) {
-                try {
-                    toUpload = await extractAudio(file);
-                } catch (err) {
-                    showError("Audio ajratib bo'lmadi: " + err.message + ". Iltimos faylni MP3 yoki WAV formatga o'tkazing.");
-                    progress.style.display = 'none';
-                    uploadBtn.disabled = false;
-                    return;
-                }
-                if (toUpload.size > 4 * 1024 * 1024) {
-                    const mb = (toUpload.size / 1024 / 1024).toFixed(1);
-                    showError(`Ajratilgan audio (${mb} MB) juda katta. Qisqaroq video yuboring yoki audio faylni alohida siqing.`);
-                    progress.style.display = 'none';
-                    uploadBtn.disabled = false;
-                    return;
-                }
+            let toUpload;
+            try {
+                toUpload = await extractAudio(file);
+            } catch (err) {
+                showError("Audio ajratib bo'lmadi: " + err.message + ". Iltimos faylni MP3 yoki WAV formatga o'tkazing.");
+                progress.style.display = 'none';
+                uploadBtn.disabled = false;
+                return;
+            }
+            if (toUpload.size > 4 * 1024 * 1024) {
+                const mb = (toUpload.size / 1024 / 1024).toFixed(1);
+                showError(`Siqilgan audio (${mb} MB) juda katta. Qisqaroq yozuv yuboring (taxminan 16 daqiqagacha).`);
+                progress.style.display = 'none';
+                uploadBtn.disabled = false;
+                return;
             }
 
             showProgress('Transkripsiya qilinmoqda...');

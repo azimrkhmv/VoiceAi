@@ -60,7 +60,7 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
         if os.path.exists(file_path):
             os.remove(file_path)
         return JSONResponse(
-            {"error": "Fayl hajmi 100 MB dan oshmasligi kerak."},
+            {"error": "Fayl server limitidan (4 MB) oshib ketdi. Qisqaroq yozuv yuboring."},
             status_code=400,
         )
 
