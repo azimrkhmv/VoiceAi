@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-MODEL = "google/gemini-2.5-pro"
+MODEL = "google/gemini-2.5-flash"
 
 MIME_TYPES = {
     ".ogg":  "audio/ogg",

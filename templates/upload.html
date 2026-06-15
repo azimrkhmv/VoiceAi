@@ -686,13 +686,15 @@
             }
 
             try {
-                const parts = [];
-                for (let i = 0; i < segments.length; i++) {
-                    showProgress(segments.length > 1
-                        ? `Transkripsiya qilinmoqda (${i + 1}/${segments.length})...`
-                        : 'Transkripsiya qilinmoqda...');
+                showProgress(segments.length > 1
+                    ? `Transkripsiya qilinmoqda (${segments.length} qism bir vaqtda)...`
+                    : 'Transkripsiya qilinmoqda...');
+
+                // Upload every segment concurrently — each hits a separate
+                // serverless invocation, so they transcribe in parallel.
+                const transcribeSegment = async (seg) => {
                     const formData = new FormData();
-                    formData.append('file', segments[i]);
+                    formData.append('file', seg);
                     const res = await fetch('/upload', { method: 'POST', body: formData });
                     if (res.status === 413) throw new Error('Fayl server limitidan oshib ketdi (4.5 MB).');
                     let data;
@@ -702,9 +704,11 @@
                         throw new Error(`Server xatosi (${res.status}): ${res.statusText || "Noma'lum xato"}`);
                     }
                     if (!res.ok || data.error) throw new Error(data.error || "Noma'lum xato");
-                    parts.push((data.transcript || '').trim());
-                }
+                    return (data.transcript || '').trim();
+                };
 
+                // Order preserved by Promise.all index.
+                const parts = await Promise.all(segments.map(transcribeSegment));
                 const transcript = parts.filter(Boolean).join('\n\n');
                 transcriptEl.textContent = transcript;
                 const words = transcript.trim().split(/\s+/).filter(Boolean).length;
