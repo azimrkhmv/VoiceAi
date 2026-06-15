@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-MODEL = "google/gemini-2.5-flash"
+MODEL = "google/gemini-2.5-pro"
 
 MIME_TYPES = {
     ".ogg":  "audio/ogg",
@@ -88,6 +88,7 @@ async def transcribe(file_path: str) -> str:
 
         payload = {
             "model": MODEL,
+            "temperature": 0,
             "messages": [
                 {
                     "role": "user",
@@ -102,7 +103,7 @@ async def transcribe(file_path: str) -> str:
             ],
         }
 
-        async with httpx.AsyncClient(timeout=55) as client:
+        async with httpx.AsyncClient(timeout=290) as client:
             response = await client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={

@@ -607,31 +607,10 @@
             errorBox.appendChild(document.createTextNode(msg));
         }
 
-        async function extractAudio(inputFile) {
-            showProgress("Fayl o'qilmoqda...");
-            const arrayBuffer = await inputFile.arrayBuffer();
-            showProgress("Audio dekodlanmoqda...");
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            let audioBuf;
-            try {
-                audioBuf = await ctx.decodeAudioData(arrayBuffer);
-            } finally {
-                await ctx.close();
-            }
-            showProgress("16 kHz mono ga o'tkazilmoqda...");
-            const TARGET_SR = 16000;
-            const offCtx = new OfflineAudioContext(1, Math.ceil(audioBuf.duration * TARGET_SR), TARGET_SR);
-            const src = offCtx.createBufferSource();
-            src.buffer = audioBuf;
-            src.connect(offCtx.destination);
-            src.start(0);
-            const resampled = await offCtx.startRendering();
-            showProgress("MP3 yaratilmoqda...");
-            const pcm = resampled.getChannelData(0);
-            const int16 = new Int16Array(pcm.length);
-            for (let i = 0; i < pcm.length; i++) {
-                int16[i] = Math.max(-32768, Math.min(32767, pcm[i] * 32768));
-            }
+        const TARGET_SR = 16000;
+        const CHUNK_SEC = 600;           // 10 min/segment → ~2.4 MB MP3 @ 32 kbps, under 4 MB server cap
+
+        function encodeMp3(int16) {
             const enc = new lamejs.Mp3Encoder(1, TARGET_SR, 32);
             const chunks = [];
             const BLOCK = 1152;
@@ -645,7 +624,42 @@
             const merged = new Uint8Array(total);
             let off = 0;
             for (const c of chunks) { merged.set(c, off); off += c.length; }
-            return new File([merged], 'audio.mp3', { type: 'audio/mpeg' });
+            return merged;
+        }
+
+        // Returns array of MP3 File segments, each a CHUNK_SEC slice of the recording.
+        async function extractAudio(inputFile) {
+            showProgress("Fayl o'qilmoqda...");
+            const arrayBuffer = await inputFile.arrayBuffer();
+            showProgress("Audio dekodlanmoqda...");
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            let audioBuf;
+            try {
+                audioBuf = await ctx.decodeAudioData(arrayBuffer);
+            } finally {
+                await ctx.close();
+            }
+            showProgress("16 kHz mono ga o'tkazilmoqda...");
+            const offCtx = new OfflineAudioContext(1, Math.ceil(audioBuf.duration * TARGET_SR), TARGET_SR);
+            const src = offCtx.createBufferSource();
+            src.buffer = audioBuf;
+            src.connect(offCtx.destination);
+            src.start(0);
+            const resampled = await offCtx.startRendering();
+            const pcm = resampled.getChannelData(0);
+            const int16 = new Int16Array(pcm.length);
+            for (let i = 0; i < pcm.length; i++) {
+                int16[i] = Math.max(-32768, Math.min(32767, pcm[i] * 32768));
+            }
+            const SAMPLES_PER_CHUNK = CHUNK_SEC * TARGET_SR;
+            const total = Math.max(1, Math.ceil(int16.length / SAMPLES_PER_CHUNK));
+            const files = [];
+            for (let i = 0; i < int16.length; i += SAMPLES_PER_CHUNK) {
+                showProgress(total > 1 ? `MP3 yaratilmoqda (${files.length + 1}/${total})...` : "MP3 yaratilmoqda...");
+                const seg = encodeMp3(int16.subarray(i, i + SAMPLES_PER_CHUNK));
+                files.push(new File([seg], `audio_${files.length}.mp3`, { type: 'audio/mpeg' }));
+            }
+            return files;
         }
 
         uploadBtn.addEventListener('click', async () => {
@@ -661,42 +675,40 @@
             errorBox.style.display = 'none';
             resultBox.style.display = 'none';
 
-            let toUpload;
+            let segments;
             try {
-                toUpload = await extractAudio(file);
+                segments = await extractAudio(file);
             } catch (err) {
                 showError("Audio ajratib bo'lmadi: " + err.message + ". Iltimos faylni MP3 yoki WAV formatga o'tkazing.");
                 progress.style.display = 'none';
                 uploadBtn.disabled = false;
                 return;
             }
-            if (toUpload.size > 4 * 1024 * 1024) {
-                const mb = (toUpload.size / 1024 / 1024).toFixed(1);
-                showError(`Siqilgan audio (${mb} MB) juda katta. Qisqaroq yozuv yuboring (taxminan 16 daqiqagacha).`);
-                progress.style.display = 'none';
-                uploadBtn.disabled = false;
-                return;
-            }
-
-            showProgress('Transkripsiya qilinmoqda...');
-
-            const formData = new FormData();
-            formData.append('file', toUpload);
 
             try {
-                const res = await fetch('/upload', { method: 'POST', body: formData });
-                if (res.status === 413) throw new Error('Fayl server limitidan oshib ketdi (4.5 MB).');
-                let data;
-                try {
-                    data = await res.json();
-                } catch (e) {
-                    throw new Error(`Server xatosi (${res.status}): ${res.statusText || "Noma'lum xato"}`);
+                const parts = [];
+                for (let i = 0; i < segments.length; i++) {
+                    showProgress(segments.length > 1
+                        ? `Transkripsiya qilinmoqda (${i + 1}/${segments.length})...`
+                        : 'Transkripsiya qilinmoqda...');
+                    const formData = new FormData();
+                    formData.append('file', segments[i]);
+                    const res = await fetch('/upload', { method: 'POST', body: formData });
+                    if (res.status === 413) throw new Error('Fayl server limitidan oshib ketdi (4.5 MB).');
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (e) {
+                        throw new Error(`Server xatosi (${res.status}): ${res.statusText || "Noma'lum xato"}`);
+                    }
+                    if (!res.ok || data.error) throw new Error(data.error || "Noma'lum xato");
+                    parts.push((data.transcript || '').trim());
                 }
-                if (!res.ok || data.error) throw new Error(data.error || "Noma'lum xato");
 
-                transcriptEl.textContent = data.transcript;
-                const words = data.transcript.trim().split(/\s+/).filter(Boolean).length;
-                const chars = data.transcript.length;
+                const transcript = parts.filter(Boolean).join('\n\n');
+                transcriptEl.textContent = transcript;
+                const words = transcript.trim().split(/\s+/).filter(Boolean).length;
+                const chars = transcript.length;
                 resultMeta.textContent = `${words} so'z · ${chars} belgi`;
                 resultBox.style.display = 'block';
                 clearFileState();
