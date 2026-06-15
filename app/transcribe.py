@@ -28,7 +28,13 @@ VIDEO_EXTENSIONS = {ext for ext, mime in MIME_TYPES.items() if mime.startswith("
 
 PROMPT = (
     "Ushbu audio yoki video xabarni o'zbek tilida aniq va to'liq transkripsiya qiling. "
-    "Faqat gapni yozing, hech qanday izoh, sarlavha yoki qo'shimcha matn qo'shmang."
+    "Suhbatni dialog ko'rinishida yozing: har bir gapiruvchini aniqlab, "
+    "uning so'zlarini alohida qatordan boshlang. "
+    "Har bir qatorni gapiruvchi nomi bilan boshlang, masalan:\n"
+    "1-shaxs: ...\n"
+    "2-shaxs: ...\n"
+    "Agar bir nechta gapiruvchi bo'lsa, ularni 1-shaxs, 2-shaxs, 3-shaxs deb belgilang. "
+    "Faqat dialogni yozing, hech qanday izoh, sarlavha yoki qo'shimcha matn qo'shmang."
 )
 
 
